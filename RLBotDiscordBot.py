@@ -24,7 +24,7 @@ client = discord.Client()
 @client.event
 async def on_ready():
     print('READY')
-    await client.change_presence(game=discord.Game(name=data['Status_message']))
+    await client.change_presence(activity=discord.Game(name=data['Status_message']))
 
 
 @client.event
@@ -43,13 +43,13 @@ async def on_message(message):
         return
 
     elif message.content.lower() == '!botmaker add' or message.content.lower() == '!botmaker':
-        botmaker_role = discord.utils.get(message.server.roles, name='BotMaker')
-        await client.add_roles(author, botmaker_role)
+        botmaker_role = discord.utils.get(message.guild.roles, name='BotMaker')
+        await author.add_roles(botmaker_role)
         return
 
     elif message.content.lower() == '!botmaker remove' or message.content.lower() == '!botmaker off':
-        botmaker_role = discord.utils.get(message.server.roles, name='BotMaker')
-        await client.remove_roles(author, botmaker_role)
+        botmaker_role = discord.utils.get(message.guild.roles, name='BotMaker')
+        await author.remove_roles(botmaker_role)
         return
 
     elif message.content.lower().startswith('!add command'):
@@ -82,9 +82,9 @@ async def on_message(message):
                 settings = open('settings.json', 'r')
                 data = json.load(settings)
                 if new:
-                    await client.send_message(message.channel, 'Command added')
+                    await message.channel.send('Command added')
                 else:
-                    await client.send_message(message.channel, 'Command edited')
+                    await message.channel.send('Command edited')
 
     elif message.content.lower().startswith('!del command'):
         allow_edit = False
@@ -107,16 +107,16 @@ async def on_message(message):
                     if trigger == command:
                         exists = True
                         previous_text = 'Previous output:\n' + str(data['commands'][command])
-                        await client.send_message(message.channel, previous_text)
+                        await message.channel.send(previous_text)
                 if not exists:
-                    await client.send_message(message.channel, 'Command does not exist')
+                    await message.channel.send('Command does not exist')
                 if exists:
                     del data['commands'][trigger]
                     settings = open('settings.json', 'w')
                     json.dump(data, settings, indent=4)
                     settings = open('settings.json', 'r')
                     data = json.load(settings)
-                    await client.send_message(message.channel, 'Command deleted')
+                    await message.channel.send('Command deleted')
 
     elif message.content.lower().startswith('!edit game'):
         allow_edit = False
@@ -140,8 +140,8 @@ async def on_message(message):
                 json.dump(data, settings, indent=4)
                 settings = open('settings.json', 'r')
                 data = json.load(settings)
-                await client.change_presence(game=discord.Game(name=data['Status_message']))
-                await client.send_message(message.channel, 'Game updated')
+                await client.change_presence(activity=discord.Game(name=data['Status_message']))
+                await message.channel.send('Game updated')
                 return
 
     elif message.content.lower().startswith('!give settings'):
@@ -151,7 +151,7 @@ async def on_message(message):
                 if message.channel.name == 'discord-bots':
                     allow_edit = True
         if allow_edit:
-            await client.send_file(message.channel, 'settings.json')
+            await message.channel.send(file=discord.File('settings.json'))
             return
 
     elif message.content.lower().startswith('!take settings'):
@@ -163,30 +163,30 @@ async def on_message(message):
         if allow_edit:
             attachment = message.attachments
             if len(attachment) > 0:
-                url = attachment[0]['url']
-                name = attachment[0]['filename']
+                url = attachment[0].url
+                name = attachment[0].filename
                 r = requests.get(url, allow_redirects=True)
                 f = open(name, 'wb')
                 f.write(r.content)
                 f.close()
                 settings = open('settings.json', 'r')
                 data = json.load(settings)
-                await client.send_message(message.channel, 'Settings updated')
+                await message.channel.send('Settings updated')
             else:
-                await client.send_message(message.channel, 'You know very well you should provide a file!')
+                await message.channel.send('You know very well you should provide a file!')
             return
 
     elif message.content.lower().startswith('!commands'):
         allow_edit = False
         for roles in author.roles:
-            if roles.name == 'Contributor' or roles.name == 'moderator':
+            if roles.name == 'Contributor' or roles.name == 'Moderator':
                 if message.channel.name == 'discord-bots':
                     allow_edit = True
         if allow_edit:
             all_commands = ''
             for command in data['commands']:
                 all_commands = all_commands + '\n' + command
-            await client.send_message(message.channel, all_commands)
+            await message.channel.send(all_commands)
             return
 
     else:
@@ -194,7 +194,7 @@ async def on_message(message):
             string_divided = message.content.lower().split(' ')
             for triggers in string_divided:
                 if triggers.startswith(command):
-                    await client.send_message(message.channel, str(data['commands'][command]))
+                    await message.channel.send(str(data['commands'][command]))
                     return
 
 
