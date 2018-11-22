@@ -1,1 +1,1 @@
-python RLBotDiscordBot.py
+python ./RLBotDiscordBot/main.py
