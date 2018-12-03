@@ -16,6 +16,7 @@ except ImportError:
 
 initial_extensions = (
     'cogs.admin',
+    'cogs.dm'
 )
 
 
@@ -23,7 +24,7 @@ class RLBotDiscordBot(commands.Bot):
 
     def __init__(self):
 
-        settings = open('./RLBotDiscordBot/settings.json', 'r')
+        settings = open('./settings.json', 'r')
         self.settings = json.load(settings)
 
         activity = discord.Game(name=self.settings['Status_message'])
@@ -62,7 +63,7 @@ class RLBotDiscordBot(commands.Bot):
 
     async def on_command_error(self, error, ctx):
         if isinstance(error, commands.CommandNotFound):
-            pass
+            print(error)
 
 
 

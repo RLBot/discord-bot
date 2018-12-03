@@ -16,16 +16,16 @@ def start_logging():
         logging.getLogger('discord.http').setLevel(logging.WARNING)
 
         # Initialize handlers for logging (Log to file and to the console)
-        file_handler = logging.FileHandler(filename='./RLBotDiscordBot/rlbotdiscord.log', encoding='utf-8', mode='w')
+        #file_handler = logging.FileHandler(filename='./RLBotDiscordBot/rlbotdiscord.log', encoding='utf-8', mode='w')
         console_handler = logging.StreamHandler()
 
         date_format = '%Y-%m-%d %H:%M:%S'
         fmt = logging.Formatter('[{asctime}] [{levelname}] {name}: {message}', date_format, style='{')
 
-        file_handler.setFormatter(fmt)
+        #file_handler.setFormatter(fmt)
         console_handler.setFormatter(fmt)
 
-        log.addHandler(file_handler)
+        #log.addHandler(file_handler)
         log.addHandler(console_handler)
         yield
 

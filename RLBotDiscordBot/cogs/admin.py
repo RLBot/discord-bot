@@ -19,6 +19,7 @@ class AdminCommands:
 
     @commands.command()
     async def add_command(self, ctx, name, *, output):
+
         if not self.check_perms(ctx):
             return
 
@@ -26,16 +27,22 @@ class AdminCommands:
 
         if exists:
             previous_out = self.bot.settings['commands'][name]
+            print(previous_out)
 
         self.bot.settings['commands'][name] = output
-        with open('./RLBotDiscordBot/settings.json', 'w') as f:
-            json.dump(self.bot.settings, f, indent=4)
+        with open('./settings.json', 'w') as file:
+            json.dump(self.bot.settings, file, indent=4)
+
+        settings = open('./settings.json', 'r')
+        self.bot.settings = json.load(settings)
 
         if exists:
+            print('sxis')
             edited_text = 'Previous output:\n' + previous_out
-            + "\nCommand edited."
+            + '\nCommand edited.'
 
             await ctx.send(edited_text)
+            await ctx.send('Command edited.')
             return
 
         await ctx.send('Command added')
@@ -51,8 +58,9 @@ class AdminCommands:
             + '\nCommand deleted')
 
             del self.bot.settings['commands'][name]
-            with open('./RLBotDiscordBot/settings.json', 'w') as f:
+            with open('./settings.json', 'w') as f:
                 json.dump(self.bot.settings, f, indent=4)
+
             await ctx.send(deleted_text)
 
     @commands.command()
@@ -62,7 +70,7 @@ class AdminCommands:
 
         self.bot.settings['Status_message'] = game
 
-        with open('./RLBotDiscordBot/settings.json', 'w') as f:
+        with open('./settings.json', 'w') as f:
             json.dump(self.bot.settings, f, indent=4)
 
         await self.bot.change_presence(activity=discord.Game(name=game))
@@ -73,7 +81,7 @@ class AdminCommands:
         if not self.check_perms(ctx):
             return
 
-        await ctx.send(file=discord.File('./RLBotDiscordBot/settings.json'))
+        await ctx.send(file=discord.File('./settings.json'))
 
 
     @commands.command()
@@ -87,9 +95,9 @@ class AdminCommands:
             name = attachment[0].filename
             r = requests.get(url, allow_redirects=True)
 
-            with open('./RLBotDiscordBot/' + name, 'wb') as f:
+            with open('./' + name, 'wb') as f:
                 f.write(r.content)
-            with open('./RLBotDiscordBot/settings.json', 'r') as f:
+            with open('./settings.json', 'r') as f:
                 self.bot.settings = json.load(f)
 
             await ctx.send('Settings updated')
@@ -108,13 +116,14 @@ class AdminCommands:
         return
 
     def check_perms(self, ctx):
-        roles_names = [r.name for r in ctx.author.roles]
-        if 'Contributor' not in roles_names and 'Moderator' not in roles_names:
-            return False
-        elif ctx.message.channel.name != 'discord-bots':
-            return False
-        else:
-            return True
+        # roles_names = [r.name for r in ctx.author.roles]
+        # if 'Contributor' not in roles_names and 'Moderator' not in roles_names:
+        #     return False
+        # elif ctx.message.channel.name != 'discord-bots':
+        #     return False
+        # else:
+        #     return True
+        return True
 
 
 
