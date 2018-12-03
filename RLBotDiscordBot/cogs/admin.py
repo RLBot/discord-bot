@@ -116,14 +116,13 @@ class AdminCommands:
         return
 
     def check_perms(self, ctx):
-        # roles_names = [r.name for r in ctx.author.roles]
-        # if 'Contributor' not in roles_names and 'Moderator' not in roles_names:
-        #     return False
-        # elif ctx.message.channel.name != 'discord-bots':
-        #     return False
-        # else:
-        #     return True
-        return True
+        roles_names = [r.name for r in ctx.author.roles]
+        if 'Contributor' not in roles_names and 'Moderator' not in roles_names:
+            return False
+        elif ctx.message.channel.name != 'discord-bots':
+            return False
+        else:
+            return True
 
 
 
