@@ -24,7 +24,7 @@ class RLBotDiscordBot(commands.Bot):
 
     def __init__(self):
 
-        settings = open('C:/Users/GTX 1060/Desktop/discord-bot-master/RLBotDiscordBot/settings.json', 'r')
+        settings = open('./settings.json', 'r')
         self.settings = json.load(settings)
 
         activity = discord.Game(name=self.settings['Status_message'])
@@ -82,7 +82,7 @@ class RLBotDiscordBot(commands.Bot):
                                         #print(args)
                                         link = "://".join(link_test[0:])
                                         #print("Has Link!")
-                                        message.channel.id = 604049792284360864
+                                        message.channel.id = YOUR CHANNEL ID HERE
                                         to_send = " ".join(args[0:])
                                         #print(to_send)
                                         status_help_embed = discord.Embed(
