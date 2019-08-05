@@ -38,7 +38,7 @@ class RLBotDiscordBot(commands.Bot):
         self.remove_command('help')
 
         for extension in initial_extensions:
-            print("woof")
+            #print("woof")
             try:
                 self.load_extension(extension)
             except Exception as e:
