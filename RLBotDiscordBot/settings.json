@@ -1,0 +1,8 @@
+{
+    "commands": {
+        "!comman1": "command output",
+        "!command2": "output",
+        "welcome_message": "Welcome"
+        },
+    "Status_message": ""
+}
