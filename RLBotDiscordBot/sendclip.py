@@ -40,7 +40,7 @@ async def sendclip(message):
                     pass
             if valid_link:
                 avatar = message.author.avatar_url or message.author.default_avatar_url
-                message.channel.id = 604049792284360864
+                message.channel.id = 352507627928027138
                 to_send = " ".join(args[0:])
                 bot_clip_embed = discord.Embed(
                 title="Poster",
