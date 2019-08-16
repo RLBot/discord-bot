@@ -1,1 +1,1 @@
-TOKEN = "Token_string"
+TOKEN = "ENTER YOUR TOKEN HERE"

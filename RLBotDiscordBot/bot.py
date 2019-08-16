@@ -2,9 +2,12 @@ import json
 import logging
 import requests
 import sys
+import random as r
 
 import discord
 from discord.ext import commands
+from discord.utils import get
+from sendclip import sendclip
 
 
 try:
@@ -24,9 +27,8 @@ class RLBotDiscordBot(commands.Bot):
 
     def __init__(self):
 
-        settings = open('./settings.json', 'r')
+        settings = open('./RLBotDiscordBot/settings.json', 'r')
         self.settings = json.load(settings)
-
         activity = discord.Game(name=self.settings['Status_message'])
 
         super().__init__(command_prefix='!',  activity=activity)
@@ -43,10 +45,24 @@ class RLBotDiscordBot(commands.Bot):
 
     async def on_ready(self):
         self.logger.info(f'{self.user} online! (ID: {self.user.id})')
+        self.has_reacted = 0
+        self.has_checked = False
 
     async def on_message(self, message):
+        if not self.has_checked:
+            for member in message.guild.members:
+                y = member.roles
+                for role in y:
+                    if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
+                        await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
+
         if message.author.bot:
-            return
+            if message.channel.id == 604049792284360864:
+                self.has_reacted += 1
+                if self.has_reacted % 2 == 0:
+                    reaction_list = ["👍","👀","🔥","👌","😄","😮","<:scratchcat:444921286703972352>","<:rank_quantum:592004043832950784>"]
+                    rNum = r.randint(0, len(reaction_list)-1)
+                    await message.add_reaction(reaction_list[rNum])
         else:
             await self.process_commands(message)
             # Check if the message doesn't start with other (not in settings.json) command
@@ -60,7 +76,8 @@ class RLBotDiscordBot(commands.Bot):
                         if triggers.startswith(command):
                             await message.channel.send(self.settings['commands'][command])
                             return
-
+            await sendclip(message)
+                    
     async def on_command_error(self, error, ctx):
         if isinstance(error, commands.CommandNotFound):
             print(error)

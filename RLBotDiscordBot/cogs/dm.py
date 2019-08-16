@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 import json
 
-class welcome:
+class welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        settings = open('./settings.json', 'r')
+        settings = open('./RLBotDiscordBot/settings.json', 'r')
         self.settings = json.load(settings)
 
     async def on_member_join(self, member):
