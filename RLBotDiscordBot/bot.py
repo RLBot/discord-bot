@@ -57,7 +57,7 @@ class RLBotDiscordBot(commands.Bot):
                         await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
 
         if message.author.bot:
-            if message.channel.id == 604049792284360864:
+            if message.channel.id == 352507627928027138:
                 self.has_reacted += 1
                 if self.has_reacted % 2 == 0:
                     reaction_list = ["👍","👀","🔥","👌","😄","😮","<:scratchcat:444921286703972352>","<:rank_quantum:592004043832950784>"]
