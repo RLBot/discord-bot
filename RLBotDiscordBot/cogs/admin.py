@@ -89,18 +89,13 @@ class AdminCommands(commands.Cog):
         if not self.check_perms(ctx):
             return
         attachment = ctx.message.attachments
-        #print("1")
 
         if len(attachment) > 0:
-            #print("2")
             url = attachment[0].url
-            #print(url)
             name = attachment[0].filename
-            #print(name)
             r = requests.get(url, allow_redirects=True)
 
             with open('./RLBotDiscordBot/settings.json', 'wb') as f:
-                #print(r.content)
                 f.write(r.content)
             with open('./RLBotDiscordBot/settings.json', 'r') as f:
                 self.bot.settings = json.load(f)
@@ -123,10 +118,8 @@ class AdminCommands(commands.Cog):
     def check_perms(self, ctx):
         roles_names = [r.name for r in ctx.author.roles]
         if ctx.message.channel.name != 'discord-bots':
-            #print("no")
             return False
         else:
-            #print("yes")
             return True
 
 

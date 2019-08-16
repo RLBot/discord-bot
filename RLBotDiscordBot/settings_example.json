@@ -2,7 +2,11 @@
     "commands": {
         "!comman1": "command output",
         "!command2": "output",
-        "welcome_message": "Welcome"
-    },
-    "Status_message": "Status"
+        "welcome_message": "Welcome",
+        "!test567": "Woof",
+        "!skyborg": "The Worst Mod!",
+        "!redox": "The Worster Mod!",
+        "!r0bbi3": "The Worstest Mod!"
+        },
+    "Status_message": ""
 }

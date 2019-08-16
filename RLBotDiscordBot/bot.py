@@ -38,7 +38,6 @@ class RLBotDiscordBot(commands.Bot):
         self.remove_command('help')
 
         for extension in initial_extensions:
-            #print("woof")
             try:
                 self.load_extension(extension)
             except Exception as e:
@@ -51,17 +50,14 @@ class RLBotDiscordBot(commands.Bot):
 
     async def on_message(self, message):
         if not self.has_checked:
-            x = message.guild.members
-            z = message.guild.roles
-            for member in x:
+            for member in message.guild.members:
                 y = member.roles
                 for role in y:
-                    if role == get(member.guild.roles, name="Python") or role == get(member.guild.roles, name="Java") or role == get(member.guild.roles, name="C#") or role == get(member.guild.roles, name="Rust") or role == get(member.guild.roles, name="Scratch"):
-                        new_role = get(member.guild.roles, name="botmaker")
-                        await member.add_roles(new_role, reason=None, atomic=True)
+                    if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
+                        await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
 
         if message.author.bot:
-            if message.channel.id == 352507627928027138:
+            if message.channel.id == 604049792284360864:
                 self.has_reacted += 1
                 if self.has_reacted % 2 == 0:
                     reaction_list = ["👍","👀","🔥","👌","😄","😮","<:scratchcat:444921286703972352>","<:rank_quantum:592004043832950784>"]
