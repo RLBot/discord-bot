@@ -44,7 +44,7 @@ async def sendclip(message):
                 to_send = " ".join(args[0:])
                 bot_clip_embed = discord.Embed(
                 title="Poster",
-                description=f"This clip was posted [here](https://discordapp.com/channels/576094057793716243/{base_channel}/{base_id}) by <@{message.author.id}>" ,
+                description=f"This clip was posted [here](https://discordapp.com/channels/348658686962696195/{base_channel}/{base_id}) by <@{message.author.id}>" ,
                 color=discord.Color.green()
                 )
                 bot_clip_embed.set_author(name="Bot Clip", icon_url = avatar)
