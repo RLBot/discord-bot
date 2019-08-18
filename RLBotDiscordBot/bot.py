@@ -37,6 +37,8 @@ class RLBotDiscordBot(commands.Bot):
 
         self.remove_command('help')
 
+        self.has_checked = False
+
         for extension in initial_extensions:
             try:
                 self.load_extension(extension)
@@ -46,15 +48,19 @@ class RLBotDiscordBot(commands.Bot):
     async def on_ready(self):
         self.logger.info(f'{self.user} online! (ID: {self.user.id})')
         self.has_reacted = 0
-        self.has_checked = False
 
     async def on_message(self, message):
+
         if not self.has_checked:
             for member in message.guild.members:
                 y = member.roles
                 for role in y:
                     if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
-                        await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
+                        if get(member.guild.roles, name="BotMaker") == None:
+                            self.has_checked = True
+                        else:
+                            await member.add_roles(get(member.guild.roles, name="BotMaker"), reason=None, atomic=True)
+                            self.has_checked = True
 
         if message.author.bot:
             if message.channel.id == 604049792284360864:
