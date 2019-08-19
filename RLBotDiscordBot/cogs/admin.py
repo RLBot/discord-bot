@@ -78,6 +78,7 @@ class AdminCommands(commands.Cog):
 
         settings = open('./RLBotDiscordBot/settings.json', 'r')
         self.bot.settings = json.load(settings)
+        await ctx.send("Whitelist Added!")
 
     @commands.command()
     async def del_whitelist(self, ctx, *, name):
