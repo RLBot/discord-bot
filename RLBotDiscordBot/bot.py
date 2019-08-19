@@ -55,7 +55,7 @@ class RLBotDiscordBot(commands.Bot):
             for member in message.guild.members:
                 y = member.roles
                 for role in y:
-                    if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
+                    if role.name in ["Python" , "Java", "C#", "Rust", "Scratch", "C++"]:
                         if get(member.guild.roles, name="BotMaker") == None:
                             self.has_checked = True
                         else:
