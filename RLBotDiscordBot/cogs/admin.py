@@ -159,7 +159,6 @@ class AdminCommands(commands.Cog):
         roles_names = [r.name for r in ctx.author.roles]
         if ctx.message.channel.name != 'discord-bots':
             return False
-            print("fuck")
         else:
             return True
 
