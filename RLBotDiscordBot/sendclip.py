@@ -15,7 +15,8 @@ async def sendclip(message):
     base_channel = 0
     base_id = 0
     args = message.content.split(" ")
-    whitelisted_links = ["clips.twitch.tv","www.twitch.tv","gfycat.com","www.youtube.com","i.gyazo.com","i.imgur.com","gyazo.com","streamable.com","www.gifyourgame.com","cdn.discordapp.com"]
+    settings = open('./RLBotDiscordBot/settings.json', 'r')
+    settings = json.load(settings)
     for i in range(len(args)):
 
         if args[i] == "!sendclip":
@@ -30,7 +31,7 @@ async def sendclip(message):
                     link = urlparse(args[j])
                     if link.scheme == "https" or link.scheme == "http":
                         Has_link = True
-                        for links in whitelisted_links:
+                        for links in settings['whitelists']:
                             if link.netloc == links:
                                 del args[j]
                                 valid_link = True

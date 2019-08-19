@@ -62,6 +62,45 @@ class AdminCommands(commands.Cog):
                 json.dump(self.bot.settings, f, indent=4)
 
             await ctx.send(deleted_text)
+    
+    @commands.command()
+    async def add_whitelist(self, ctx, name, *, output):
+        if not self.check_perms(ctx):
+            return
+        
+        exists = name in self.bot.settings['whitelists']
+        if exists:
+            await ctx.send("Link already whitelisted")
+
+        self.bot.settings['whitelists'][name] = output
+        with open('./RLBotDiscordBot/settings.json', 'w') as file:
+            json.dump(self.bot.settings, file, indent=4)
+
+        settings = open('./RLBotDiscordBot/settings.json', 'r')
+        self.bot.settings = json.load(settings)
+
+    @commands.command()
+    async def del_whitelist(self, ctx, *, name):
+        if not self.check_perms(ctx):
+            return
+
+        if name in self.bot.settings['whitelists']:
+
+            del self.bot.settings['whitelists'][name]
+            with open('./RLBotDiscordBot/settings.json', 'w') as f:
+                json.dump(self.bot.settings, f, indent=4)
+
+            await ctx.send("Whitelist Removed!")
+
+    @commands.command()
+    async def whitelists(self, ctx):
+
+        if not self.check_perms(ctx):
+            return
+        all_whitelists = '\n'.join(self.bot.settings['whitelists'])
+
+        await ctx.send(all_whitelists)
+        return
 
     @commands.command()
     async def edit_game(self, ctx, *, game):
@@ -119,6 +158,7 @@ class AdminCommands(commands.Cog):
         roles_names = [r.name for r in ctx.author.roles]
         if ctx.message.channel.name != 'discord-bots':
             return False
+            print("fuck")
         else:
             return True
 
