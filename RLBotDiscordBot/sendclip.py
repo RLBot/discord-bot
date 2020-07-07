@@ -15,7 +15,7 @@ async def sendclip(message):
     base_channel = 0
     base_id = 0
     args = message.content.split(" ")
-    whitelisted_links = ["clips.twitch.tv","www.twitch.tv","gfycat.com","www.youtube.com","i.gyazo.com","gyazo.com","i.imgur.com","imgur.com","streamable.com","www.gifyourgame.com","cdn.discordapp.com"]
+    whitelisted_links = ["clips.twitch.tv","twitch.tv","gfycat.com","youtube.com","youtu.be","i.gyazo.com","gyazo.com","i.imgur.com","imgur.com","streamable.com","gifyourgame.com","cdn.discordapp.com"]
     for i in range(len(args)):
 
         if args[i] == "!sendclip":
