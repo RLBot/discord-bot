@@ -4,6 +4,7 @@ import requests
 import sys
 import random as r
 from urllib.parse import urlparse
+import re
 
 import discord
 from discord.ext import commands
@@ -15,7 +16,16 @@ async def sendclip(message):
     base_channel = 0
     base_id = 0
     args = message.content.split(" ")
-    whitelisted_links = ["clips.twitch.tv","twitch.tv","gfycat.com","youtube.com","youtu.be","i.gyazo.com","gyazo.com","i.imgur.com","imgur.com","streamable.com","gifyourgame.com","cdn.discordapp.com"]
+    whitelisted_links = {
+        "clips.twitch.tv", "twitch.tv",
+        "gfycat.com",
+        "youtube.com", "youtu.be",
+        "i.gyazo.com", "gyazo.com",
+        "i.imgur.com", "imgur.com",
+        "streamable.com",
+        "gifyourgame.com",
+        "cdn.discordapp.com",
+    }
     for i in range(len(args)):
 
         if args[i] == "!sendclip":
@@ -30,11 +40,10 @@ async def sendclip(message):
                     link = urlparse(args[j])
                     if link.scheme == "https" or link.scheme == "http":
                         Has_link = True
-                        for links in whitelisted_links:
-                            if link.netloc == links:
-                                del args[j]
-                                valid_link = True
-                                break
+                        if re.sub(r'^www\.', '', link.netloc, re.IGNORECASE) in whitelisted_links:
+                            del args[j]
+                            valid_link = True
+                            break
                         break
                 except:
                     pass
