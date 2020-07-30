@@ -17,54 +17,28 @@ from discord.utils import get
 
 
 async def checkCalendar(message):
+    FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+    FORMAT2 = "%B %d, %H:%M UTC"
+    today = datetime.datetime.utcnow()
+    to_check = today.strftime(FORMAT)
     api_key = GOOGLE_API_KEY
     args = message.content.split(" ")
     if "!tournaments" in args:
-        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"]
-        FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-        FORMAT2 = "%H:%M UTC"
-        FORMAT3 = "%d %m"
-        today = datetime.datetime.utcnow()
-        to_check = today.strftime(FORMAT)
         r = requests.get(f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=3&timeMin={to_check}&key={api_key}")
         jsons = r.json()
         if len(jsons["items"]) > 0:
-            name = jsons["items"][0]["summary"]
-            start = jsons["items"][0]["start"]["dateTime"]
-            new_date = datetime.datetime.strptime(start, FORMAT)
-            some_time = new_date.strftime(FORMAT2)
-            day_month = new_date.strftime(FORMAT3).split(" ")
-            day = day_month[0]
-            month = months[int(day_month[1])-1]
-            month_day = month + " " + day
-            time_until = date.duration(new_date, now=today, precision=3)
+            name, some_time, time_until = date_time_check(today, jsons, 0)
             tournaments_embed = discord.Embed(
                         title=name,
-                        description=f"Will begin in {time_until}. ({month_day}, {some_time})" ,
+                        description=f"Will begin in {time_until}. ({some_time})" ,
                         color=discord.Color.green()
                         )
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
             if len(jsons["items"]) >= 2:
-                name = jsons["items"][1]["summary"]
-                start = jsons["items"][1]["start"]["dateTime"]
-                new_date = datetime.datetime.strptime(start, FORMAT)
-                some_time = new_date.strftime(FORMAT2)
-                day_month = new_date.strftime(FORMAT3).split(" ")
-                day = day_month[0]
-                month = months[int(day_month[1])-1]
-                month_day = month + " " + day
-                time_until = date.duration(new_date, now=today, precision=3)
+                name, some_time, time_until = date_time_check(today, jsons, 1)
                 tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({month_day}, {some_time})", inline=False)
             if len(jsons["items"]) == 3:
-                name = jsons["items"][2]["summary"]
-                start = jsons["items"][2]["start"]["dateTime"]
-                new_date = datetime.datetime.strptime(start, FORMAT)
-                some_time = new_date.strftime(FORMAT2)
-                day_month = new_date.strftime(FORMAT3).split(" ")
-                day = day_month[0]
-                month = months[int(day_month[1])-1]
-                month_day = month + " " + day
-                time_until = date.duration(new_date, now=today, precision=3)
+                name, some_time, time_until = date_time_check(today, jsons, 2)
                 tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({month_day}, {some_time})", inline=False)
         else:
             tournaments_embed = discord.Embed(
@@ -73,3 +47,14 @@ async def checkCalendar(message):
                         )
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
         await message.channel.send(" ", embed=tournaments_embed)
+
+
+def date_time_check(today, jsons, num):
+    FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+    FORMAT2 = "%B %d, %H:%M UTC"
+    names = jsons["items"][num]["summary"]
+    start = jsons["items"][num]["start"]["dateTime"]
+    new_date = datetime.datetime.strptime(start, FORMAT)
+    some_times = new_date.strftime(FORMAT2)
+    time_untils = date.duration(new_date, now=today, precision=3)
+    return names, some_times, time_untils
