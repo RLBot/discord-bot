@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from sendclip import sendclip
+from calendars import checkCalendar
 
 
 try:
@@ -77,6 +78,7 @@ class RLBotDiscordBot(commands.Bot):
                             await message.channel.send(self.settings['commands'][command])
                             return
             await sendclip(message)
+            await checkCalendar(message)
                     
     async def on_command_error(self, error, ctx):
         if isinstance(error, commands.CommandNotFound):
