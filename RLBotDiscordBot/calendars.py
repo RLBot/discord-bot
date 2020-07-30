@@ -18,11 +18,7 @@ async def checkCalendar(message):
     load_dotenv()
     api_key = GOOGLE_API_KEY
     args = message.content.split(" ")
-    can_run = False
-    for i in args:
-        if i == "!tournaments":
-            can_run = True
-    if can_run:
+    if "!tournaments" in args:
         months = ["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"]
         today = str(datetime.datetime.now())
         checkDay = today.split(" ")[0] + "T"
