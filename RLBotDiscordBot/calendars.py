@@ -46,6 +46,7 @@ async def checkCalendar(message):
                         color=discord.Color.red()
                         )
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
+        tournaments_embed.set_footer(text="http://www.rlbot.org/tournament/")
         await message.channel.send(" ", embed=tournaments_embed)
 
 
