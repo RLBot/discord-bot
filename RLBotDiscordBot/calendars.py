@@ -36,16 +36,17 @@ async def checkCalendar(message):
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
             if len(jsons["items"]) >= 2:
                 name, some_time, time_until = date_time_check(today, jsons, 1)
-                tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({month_day}, {some_time})", inline=False)
+                tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({some_time})", inline=False)
             if len(jsons["items"]) == 3:
                 name, some_time, time_until = date_time_check(today, jsons, 2)
-                tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({month_day}, {some_time})", inline=False)
+                tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({some_time})", inline=False)
         else:
             tournaments_embed = discord.Embed(
                         description=f"No tournaments currently scheduled, if any are, they will appear here!" ,
                         color=discord.Color.red()
                         )
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
+        tournaments_embed.set_footer(text="http://rlbot.org/tournament/")
         await message.channel.send(" ", embed=tournaments_embed)
 
 
