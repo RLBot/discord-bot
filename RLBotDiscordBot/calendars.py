@@ -23,23 +23,40 @@ async def checkCalendar(message):
     to_check = today.strftime(FORMAT)
     api_key = GOOGLE_API_KEY
     args = message.content.split(" ")
-    if "!tournaments" in args:
+    if "!tournament" in args or "!tournaments" in args:
         r = requests.get(f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=3&timeMin={to_check}&key={api_key}")
         jsons = r.json()
         if len(jsons["items"]) != 0:
-            tournaments_embed = discord.Embed(color=discord.Color.green())
             events = []
             for raw_event in jsons["items"]:
                 name, some_time, time_until = date_time_check(today, raw_event)
-                verb_tense = "Will Begin in" if "now" in time_until else "Began"
+                verb_tense = "Will begin in" if "now" in time_until else "Began"
                 events.append({"name": name,
                                "some_time": some_time,
                                "time_until": time_until,
-                               "verb_tense": verb_tense})
+                               "verb_tense": verb_tense,
+                               "location": raw_event.get("location"),
+                               "docs": raw_event.get("description")})
             events.sort(key=lambda ev: ev["time_until"])
+            first_event = True
             for event in events:
-                tournaments_embed.add_field(name=event["name"],
-                                            value=f'{event["verb_tense"]} {event["time_until"]}. ({event["some_time"]})',
+                if event["docs"]:
+                    docs = f' | [Info]({event["docs"]})'
+                else:
+                    docs = ""
+                if first_event:
+                    tournaments_embed = discord.Embed(color=discord.Color.green())
+                    tournaments_embed = discord.Embed(
+                        title=event["name"],
+                        description=f'{event["verb_tense"]} {event["time_until"]}. ({event["some_time"]}){docs}',
+                        color=discord.Color.green()
+                    )
+                    if event["location"]:
+                        tournaments_embed.url = event["location"]
+                    first_event = False
+                else:
+                    tournaments_embed.add_field(name=event["name"],
+                                            value=f'{event["verb_tense"]} {event["time_until"]}. ({event["some_time"]}){docs}',
                                             inline=False)
         else:
             tournaments_embed = discord.Embed(
@@ -50,7 +67,6 @@ async def checkCalendar(message):
                                      icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128",
                                      url="http://rlbot.org/tournament/")
         tournaments_embed.set_footer(text="http://rlbot.org/tournament/")
-        tournaments_embed.url = "http://rlbot.org/tournament/"
         await message.channel.send(" ", embed=tournaments_embed)
 
 

@@ -51,11 +51,12 @@ class RLBotDiscordBot(commands.Bot):
 
     async def on_message(self, message):
         if not self.has_checked:
-            for member in message.guild.members:
-                y = member.roles
-                for role in y:
-                    if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
-                        await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
+            if message.guild is not None:  # its None for dms
+                for member in message.guild.members:
+                    y = member.roles
+                    for role in y:
+                        if role.name == "Python" or role.name == "Java" or role.name == "C#" or role.name == "Rust" or role.name == "Scratch" or role.name == "C++":
+                            await member.add_roles(get(member.guild.roles, name="botmaker"), reason=None, atomic=True)
 
         if message.author.bot:
             if message.channel.id == 352507627928027138:
