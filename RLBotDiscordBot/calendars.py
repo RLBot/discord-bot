@@ -26,19 +26,24 @@ async def checkCalendar(message):
     if "!tournaments" in args:
         r = requests.get(f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=3&timeMin={to_check}&key={api_key}")
         jsons = r.json()
-        if len(jsons["items"]) > 0:
-            name, some_time, time_until = date_time_check(today, jsons, 0)
+        dates_list = []
+        for i in range(len(jsons["items"])):
+            dates_list.append(date_time_check(today, jsons, i))
+        dates_list.sort(key=lambda tup: tup[2])
+
+        if len(dates_list) > 0:
+            name, some_time, time_until = dates_list[0]
             tournaments_embed = discord.Embed(
                         title=name,
                         description=f"Will begin in {time_until}. ({some_time})" , #after even has started but not finished, this will say "Will being in {time} ago" I am not sure how to fix this using the API arguments
                         color=discord.Color.green()
                         )
             tournaments_embed.set_author(name="Upcoming Tournaments", icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128")
-            if len(jsons["items"]) >= 2:
-                name, some_time, time_until = date_time_check(today, jsons, 1)
+            if len(dates_list) >= 2:
+                name, some_time, time_until = dates_list[1]
                 tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({some_time})", inline=False)
-            if len(jsons["items"]) == 3:
-                name, some_time, time_until = date_time_check(today, jsons, 2)
+            if len(dates_list) == 3:
+                name, some_time, time_until = dates_list[2]
                 tournaments_embed.add_field(name=name, value=f"Will begin in {time_until}. ({some_time})", inline=False)
         else:
             tournaments_embed = discord.Embed(
@@ -74,4 +79,4 @@ def date_time_check(today, jsons, num):
         pass
     some_times = new_date.strftime(FORMAT2)
     time_untils = date.duration(new_date, now=today, precision=3)
-    return names, some_times, time_untils
+    return (names, some_times, time_untils)
