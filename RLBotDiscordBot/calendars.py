@@ -76,4 +76,4 @@ def date_time_check(today, event):
         pass
     some_times = new_date.strftime(FORMAT2)
     time_untils = date.duration(new_date, now=today, precision=3)
-    return names, some_times, time_untils
+    return (names, some_times, time_untils)
