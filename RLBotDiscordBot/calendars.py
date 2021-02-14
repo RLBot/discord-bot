@@ -29,15 +29,16 @@ async def checkCalendar(message):
         if len(jsons["items"]) != 0:
             events = []
             for raw_event in jsons["items"]:
-                name, some_time, time_until = date_time_check(today, raw_event)
+                name, some_time, time_until, raw_date = date_time_check(today, raw_event)
                 verb_tense = "Will begin in" if "now" in time_until else "Began"
                 events.append({"name": name,
                                "some_time": some_time,
                                "time_until": time_until,
+                               "raw_date": raw_date,
                                "verb_tense": verb_tense,
                                "location": raw_event.get("location"),
                                "docs": raw_event.get("description")})
-            events.sort(key=lambda ev: ev["time_until"])
+            events.sort(key=lambda ev: ev["raw_date"])
             first_event = True
             for event in events:
                 if event["docs"]:
@@ -74,6 +75,7 @@ def date_time_check(today, event):
     names = event["summary"]
     start = event["start"]["dateTime"]
     new_date = datetime.datetime.strptime(start, FORMAT)
+    raw_date = new_date.timestamp()
     try:
         recurrence = event["recurrence"][0].split(";")
         rec_type = recurrence[0].split("=")[1]
@@ -92,4 +94,4 @@ def date_time_check(today, event):
         pass
     some_times = new_date.strftime(FORMAT2)
     time_untils = date.duration(new_date, now=today, precision=3)
-    return (names, some_times, time_untils)
+    return (names, some_times, time_untils, raw_date)
