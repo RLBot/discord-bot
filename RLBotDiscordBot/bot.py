@@ -45,11 +45,11 @@ class RLBotDiscordBot(commands.Bot):
                 self.load_extension(extension)
             except Exception as e:
                 self.logger.error(f'There was an error loading the extension {extension}. Error: {e}')
+        self.has_reacted = 0
+        self.has_checked = False
 
     async def on_ready(self):
         self.logger.info(f'{self.user} online! (ID: {self.user.id})')
-        self.has_reacted = 0
-        self.has_checked = False
 
     async def on_message(self, message):
         if not self.has_checked:
