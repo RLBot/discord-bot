@@ -18,28 +18,25 @@ class AdminCommands(commands.Cog):
             await ctx.send(f'Invalid action {action}.')
 
     @commands.command()
-    async def add_command(self, ctx, name, *, output):
+    async def add_command(self, ctx, name, *, output: str):
 
         if not self.check_perms(ctx):
             return
-
+        output = output.lower()
         exists = name in self.bot.settings['commands']
 
         if exists:
             previous_out = self.bot.settings['commands'][name]
-            print(previous_out)
 
         self.bot.settings['commands'][name] = output
-        with open('./RLBotDiscordBot/settings.json', 'w') as file:
+        with open(self.bot.settings_path, 'w') as file:
             json.dump(self.bot.settings, file, indent=4)
 
-        settings = open('./RLBotDiscordBot/settings.json', 'r')
+        settings = open(self.bot.settings_path, 'r')
         self.bot.settings = json.load(settings)
 
         if exists:
-            print('sxis')
-            edited_text = 'Previous output:\n' + previous_out
-            + '\nCommand edited.'
+            edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
 
             await ctx.send(edited_text)
             await ctx.send('Command edited.')
@@ -52,13 +49,13 @@ class AdminCommands(commands.Cog):
         if not self.check_perms(ctx):
             return
 
+        name = name.lower()
         if name in self.bot.settings['commands']:
 
-            deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name]
-            + '\nCommand deleted')
+            deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name] + '\nCommand deleted')
 
             del self.bot.settings['commands'][name]
-            with open('./RLBotDiscordBot/settings.json', 'w') as f:
+            with open(self.bot.settings_path, 'w') as f:
                 json.dump(self.bot.settings, f, indent=4)
 
             await ctx.send(deleted_text)
@@ -70,7 +67,7 @@ class AdminCommands(commands.Cog):
 
         self.bot.settings['Status_message'] = game
 
-        with open('./RLBotDiscordBot/settings.json', 'w') as f:
+        with open(self.bot.settings_path, 'w') as f:
             json.dump(self.bot.settings, f, indent=4)
 
         await self.bot.change_presence(activity=discord.Game(name=game))
@@ -81,7 +78,7 @@ class AdminCommands(commands.Cog):
         if not self.check_perms(ctx):
             return
 
-        await ctx.send(file=discord.File('./RLBotDiscordBot/settings.json'))
+        await ctx.send(file=discord.File(self.bot.settings_path))
 
 
     @commands.command()
@@ -92,12 +89,11 @@ class AdminCommands(commands.Cog):
 
         if len(attachment) > 0:
             url = attachment[0].url
-            name = attachment[0].filename
             r = requests.get(url, allow_redirects=True)
 
-            with open('./RLBotDiscordBot/settings.json', 'wb') as f:
+            with open(self.bot.settings_path, 'wb') as f:
                 f.write(r.content)
-            with open('./RLBotDiscordBot/settings.json', 'r') as f:
+            with open(self.bot.settings_path, 'r') as f:
                 self.bot.settings = json.load(f)
 
             await ctx.send('Settings updated')
@@ -107,20 +103,20 @@ class AdminCommands(commands.Cog):
 
     @commands.command()
     async def commands(self, ctx):
-
         if not self.check_perms(ctx):
             return
-        all_commands = '\n'.join(self.bot.settings['commands'])
+        commands_list: list = list(self.bot.settings['commands'].keys())
+        commands_list.sort()
+        all_commands = '\n'.join(commands_list)
 
         await ctx.send(all_commands)
         return
 
     def check_perms(self, ctx):
-        roles_names = [r.name for r in ctx.author.roles]
-        if ctx.message.channel.name != 'discord-bots':
-            return False
-        else:
+        if ctx.message.channel.id == '474710564627808287':
             return True
+        else:
+            return False
 
 
 
