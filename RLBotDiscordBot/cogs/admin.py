@@ -113,12 +113,7 @@ class AdminCommands(commands.Cog):
         return
 
     def check_perms(self, ctx):
-        if ctx.message.channel.id == '474710564627808287':
-            return True
-        else:
-            return False
-
-
+        return ctx.message.channel.id == '474710564627808287'
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))
