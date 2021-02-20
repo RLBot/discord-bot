@@ -47,7 +47,6 @@ class AdminCommands(commands.Cog):
             edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
 
             await ctx.send(edited_text)
-            await ctx.send('Command edited.')
             return
 
         await ctx.send('Command added')
@@ -75,18 +74,21 @@ class AdminCommands(commands.Cog):
         if not args:
             help_message = 'Example uses:\n' \
                            '!presence "`game`" "`game name`"\n' \
-                           '!presence "`streaming`" "`stream url`"'
+                           '!presence "`stream`" "`stream name`" "`stream url`"'
             await ctx.send(help_message)
         presence_type = args[0].lower()
         if presence_type == 'game':
             name = ' '.join(args[1:])
             await self.bot.change_presence(activity=discord.Game(name=name))
 
-        if presence_type == 'stream':
+        elif presence_type == 'stream':
             name = args[1]
             url = args[2]
 
             await self.bot.change_presence(activity=discord.Streaming(name=name, url=url))
+
+        else:
+            await ctx.send(f'Presence type unsupported: `{presence_type}`')
 
         await ctx.send('Presence updated')
 
