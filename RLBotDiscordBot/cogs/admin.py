@@ -2,24 +2,32 @@ import discord
 from discord.ext import commands
 import json
 import requests
+from bot import RLBotDiscordBot
 
 class AdminCommands(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
     @commands.command()
-    async def botmaker(self, ctx, action=None):
+    async def refill_botmaker(self, ctx: discord.ext.commands.Context):
+        if not self.check_perms(ctx):
+            return
+        for member in ctx.guild.members:
+            member_roles = member.roles
+            for role in member_roles:
+                if role.name in self.bot.settings["Language_roles"]:
+                    await member.add_roles(discord.utils.get(ctx.guild.roles, name="BotMaker"), reason=None, atomic=True)
+
+    @commands.command()
+    async def botmaker(self, ctx: discord.ext.commands.Context):
         botmaker_role = discord.utils.get(ctx.guild.roles, name='BotMaker')
-        if action == 'add' or not action:
-            await ctx.author.add_roles(botmaker_role)
-        elif action == 'remove' or action == 'off':
+        if botmaker_role in ctx.author.roles:
             await ctx.author.remove_roles(botmaker_role)
         else:
-            await ctx.send(f'Invalid action {action}.')
+            await ctx.author.add_roles(botmaker_role)
 
     @commands.command()
     async def add_command(self, ctx, name, *, output: str):
-
         if not self.check_perms(ctx):
             return
         output = output.lower()
@@ -61,17 +69,26 @@ class AdminCommands(commands.Cog):
             await ctx.send(deleted_text)
 
     @commands.command()
-    async def edit_game(self, ctx, *, game):
+    async def presence(self, ctx, *args):
         if not self.check_perms(ctx):
             return
+        if not args:
+            help_message = 'Example uses:\n' \
+                           '!presence "`game`" "`game name`"\n' \
+                           '!presence "`streaming`" "`stream url`"'
+            await ctx.send(help_message)
+        presence_type = args[0].lower()
+        if presence_type == 'game':
+            name = ' '.join(args[1:])
+            await self.bot.change_presence(activity=discord.Game(name=name))
 
-        self.bot.settings['Status_message'] = game
+        if presence_type == 'stream':
+            name = args[1]
+            url = args[2]
 
-        with open(self.bot.settings_path, 'w') as f:
-            json.dump(self.bot.settings, f, indent=4)
+            await self.bot.change_presence(activity=discord.Streaming(name=name, url=url))
 
-        await self.bot.change_presence(activity=discord.Game(name=game))
-        await ctx.send('Game updated')
+        await ctx.send('Presence updated')
 
     @commands.command()
     async def give_settings(self, ctx):
@@ -101,19 +118,40 @@ class AdminCommands(commands.Cog):
         else:
             await ctx.send('You know very well you should provide a file!')
 
-    @commands.command()
-    async def commands(self, ctx):
+    @commands.command(aliases=['commands'])
+    async def command_list(self, ctx):
         if not self.check_perms(ctx):
             return
         commands_list: list = list(self.bot.settings['commands'].keys())
         commands_list.sort()
+        commands_list.append('\n***Admin Commands:***')
+        for command in self.bot.commands:
+            commands_list.append(self.bot.command_prefix + str(command))
         all_commands = '\n'.join(commands_list)
 
         await ctx.send(all_commands)
         return
 
+    @commands.command()
+    async def whitelist_domain(self, ctx, *, domain: str = ''):
+        if not self.check_perms(ctx):
+            return
+        if domain:
+            if domain not in self.bot.settings['Whitelisted_clip_domains']:
+                self.bot.settings['Whitelisted_clip_domains'].append(domain)
+                with open(self.bot.settings_path, 'w') as f:
+                    json.dump(self.bot.settings, f, indent=4)
+                current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
+                await ctx.send(f'Domain added.\nCurrent domains:\n```{current_domains}```')
+            else:
+                current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
+                await ctx.send(f'Domain already existed.\nCurrent domains:\n```{current_domains}```')
+        else:
+            current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
+            await ctx.send(f'Current domains:\n```{current_domains}```')
+
     def check_perms(self, ctx):
-        return ctx.message.channel.id == 474710564627808287
+        return ctx.message.channel.id == self.bot.settings['Admin_channel']
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

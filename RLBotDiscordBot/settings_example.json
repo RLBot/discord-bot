@@ -1,12 +1,12 @@
 {
     "commands": {
-        "!comman1": "command output",
-        "!command2": "output",
-        "welcome_message": "Welcome",
-        "!test567": "Woof",
-        "!skyborg": "The Worst Mod!",
-        "!redox": "The Worster Mod!",
-        "!r0bbi3": "The Worstest Mod!"
-        },
-    "Status_message": ""
+        "!wiki": "Wiki: <https://github.com/RLBot/RLBot/wiki>"
+    },
+    "Admin_channel": 474710564677808287,
+    "Clips_channel": 352507627928027138,
+    "Status_message": "with bots!",
+    "Whitelisted_clip_domains": [
+        "clips.twitch.tv"
+    ],
+    "Language_roles": ["Python"]
 }

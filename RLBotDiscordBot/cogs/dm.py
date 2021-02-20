@@ -5,11 +5,10 @@ import json
 class welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        settings = open('./RLBotDiscordBot/settings.json', 'r')
-        self.settings = json.load(settings)
 
     async def on_member_join(self, member):
-        await member.send(self.settings['commands']['welcome_message'])
+        if self.bot.settings['commands']['welcome_message']:
+            await member.send(self.bot.settings['commands']['welcome_message'])
 
 
 def setup(bot):
