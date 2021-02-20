@@ -26,6 +26,7 @@ class RLBotDiscordBot(commands.Bot):
             self.settings_path = '../RLBotDiscordBot/settings.json'
         with open(self.settings_path, 'r') as settings:
             self.settings = json.load(settings)
+
         activity = discord.Game(name=self.settings['Status_message'])
 
         super().__init__(command_prefix='!',  activity=activity)

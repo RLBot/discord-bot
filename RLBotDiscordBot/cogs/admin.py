@@ -73,22 +73,42 @@ class AdminCommands(commands.Cog):
             return
         if not args:
             help_message = 'Example uses:\n' \
-                           '!presence "`game`" "`game name`"\n' \
-                           '!presence "`stream`" "`stream name`" "`stream url`"'
+                           '!presence reset\n' \
+                           '!presence "`stream`" "`stream name`" "`stream url`"\n' \
+                           '`Streaming ...`\n' \
+                           '!presence "`playing`" "`custom name`"\n' \
+                           '`Playing ...`\n' \
+                           '!presence "`listening`" "`custom name`"\n' \
+                           '`Listening to ...`\n' \
+                           '!presence "`competing`" "`custom name`"\n' \
+                           '`Competing in ...`\n' \
+                           '!presence "`watching`" "`custom name`"\n'\
+                           '`Watching ...`'
             await ctx.send(help_message)
         presence_type = args[0].lower()
-        if presence_type == 'game':
-            name = ' '.join(args[1:])
-            await self.bot.change_presence(activity=discord.Game(name=name))
 
-        elif presence_type == 'stream':
+        name = ' '.join(args[1:])
+        presence_dict = {'playing': discord.ActivityType.playing,
+                         'listening': discord.ActivityType.listening,
+                         'competing': discord.ActivityType.competing,
+                         'watching': discord.ActivityType.watching}
+
+        if presence_type == 'stream':
             name = args[1]
             url = args[2]
 
             await self.bot.change_presence(activity=discord.Streaming(name=name, url=url))
 
+        elif presence_type in presence_dict.keys():
+            presence = presence_dict[presence_type]
+            await self.bot.change_presence(activity=discord.Activity(type=presence, name=name))
+
+        elif presence_type == 'reset':
+            await self.bot.change_presence()
+
         else:
             await ctx.send(f'Presence type unsupported: `{presence_type}`')
+            return
 
         await ctx.send('Presence updated')
 
