@@ -34,7 +34,8 @@ class AdminCommands(commands.Cog):
     async def add_command(self, ctx, name, *, output: str):
         if not self.check_perms(ctx):
             return
-        output = output.lower()
+
+        name = name.lower()
         exists = name in self.bot.settings['commands']
 
         if exists:
@@ -49,11 +50,9 @@ class AdminCommands(commands.Cog):
 
         if exists:
             edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
-
             await ctx.send(edited_text)
-            return
-
-        await ctx.send('Command added')
+        else:
+            await ctx.send('Command added')
 
     @commands.command()
     async def del_command(self, ctx, *, name):
@@ -88,6 +87,7 @@ class AdminCommands(commands.Cog):
                            '!presence "`watching`" "`custom name`"\n' \
                            '`Watching ...`'
             await ctx.send(help_message)
+            return
         presence_type = args[0].lower()
 
         name = ' '.join(args[1:])

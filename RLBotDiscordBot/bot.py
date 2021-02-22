@@ -62,9 +62,10 @@ class RLBotDiscordBot(commands.Bot):
                             await message.channel.send(self.settings['commands'][command])
                             return
 
-    async def on_command_error(self, error, ctx):
+    async def on_command_error(self, ctx, error: Exception):
         if isinstance(error, commands.CommandNotFound):
-            print(error)
+            return
+        self.logger.exception(error)
 
     def run(self):
         super().run(TOKEN, reconnect=True)
