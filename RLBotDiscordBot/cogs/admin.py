@@ -1,8 +1,11 @@
-import discord
-from discord.ext import commands
 import json
+
+import discord
 import requests
+from discord.ext import commands
+
 from bot import RLBotDiscordBot
+
 
 class AdminCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
@@ -16,7 +19,8 @@ class AdminCommands(commands.Cog):
             member_roles = member.roles
             for role in member_roles:
                 if role.name in self.bot.settings["Language_roles"]:
-                    await member.add_roles(discord.utils.get(ctx.guild.roles, name="BotMaker"), reason=None, atomic=True)
+                    await member.add_roles(discord.utils.get(ctx.guild.roles, name="BotMaker"), reason=None,
+                                           atomic=True)
 
     @commands.command()
     async def botmaker(self, ctx: discord.ext.commands.Context):
@@ -58,7 +62,6 @@ class AdminCommands(commands.Cog):
 
         name = name.lower()
         if name in self.bot.settings['commands']:
-
             deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name] + '\nCommand deleted')
 
             del self.bot.settings['commands'][name]
@@ -82,7 +85,7 @@ class AdminCommands(commands.Cog):
                            '`Listening to ...`\n' \
                            '!presence "`competing`" "`custom name`"\n' \
                            '`Competing in ...`\n' \
-                           '!presence "`watching`" "`custom name`"\n'\
+                           '!presence "`watching`" "`custom name`"\n' \
                            '`Watching ...`'
             await ctx.send(help_message)
         presence_type = args[0].lower()
@@ -119,7 +122,6 @@ class AdminCommands(commands.Cog):
 
         await ctx.send(file=discord.File(self.bot.settings_path))
 
-
     @commands.command()
     async def take_settings(self, ctx):
         if not self.check_perms(ctx):
@@ -152,7 +154,6 @@ class AdminCommands(commands.Cog):
         all_commands = '\n'.join(commands_list)
 
         await ctx.send(all_commands)
-        return
 
     @commands.command()
     async def whitelist_domain(self, ctx, *, domain: str = ''):
@@ -174,6 +175,7 @@ class AdminCommands(commands.Cog):
 
     def check_perms(self, ctx):
         return ctx.message.channel.id == self.bot.settings['Admin_channel']
+
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))
