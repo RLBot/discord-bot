@@ -1,11 +1,12 @@
-from discord.ext import commands
-from bot import RLBotDiscordBot
 import random as r
-from urllib.parse import urlparse
 import re
+from urllib.parse import urlparse
 
 import discord
 from discord.ext import commands
+from discord.ext import commands
+
+from bot import RLBotDiscordBot
 
 
 class SendClip(commands.Cog):

@@ -1,7 +1,8 @@
 import json
 import logging
-import sys
 import os.path
+import sys
+
 import discord
 from discord.ext import commands
 
@@ -18,6 +19,7 @@ initial_extensions = (
     'cogs.calendar'
 )
 
+
 class RLBotDiscordBot(commands.Bot):
     def __init__(self):
         if os.path.exists('./RLBotDiscordBot/settings.json'):
@@ -29,7 +31,7 @@ class RLBotDiscordBot(commands.Bot):
 
         activity = discord.Game(name=self.settings['Status_message'])
 
-        super().__init__(command_prefix='!',  activity=activity)
+        super().__init__(command_prefix='!', activity=activity)
 
         self.logger = logging.getLogger(__name__)
         self.remove_command('help')
@@ -59,7 +61,7 @@ class RLBotDiscordBot(commands.Bot):
                         if triggers.startswith(command):
                             await message.channel.send(self.settings['commands'][command])
                             return
-                    
+
     async def on_command_error(self, error, ctx):
         if isinstance(error, commands.CommandNotFound):
             print(error)
