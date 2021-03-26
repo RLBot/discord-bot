@@ -11,6 +11,7 @@ from bot import RLBotDiscordBot
 
 FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 FORMAT2 = "%B %d, %H:%M UTC"
+FORMAT3 = "%Y%m%dT%H%M%SZ"
 
 
 class Calendar(commands.Cog):
@@ -82,14 +83,15 @@ def date_time_check(today, event):
     try:
         recurrence = event["recurrence"][0].split(";")
         rec_type = recurrence[0].split("=")[1]
-        num_recs = recurrence[2].split("=")[1]
+        end_date_raw = recurrence[2].split("=")[1]
+        end_date = datetime.datetime.strptime(end_date_raw, FORMAT3)
         if rec_type == "WEEKLY":
-            for _ in range(int(num_recs)):
+            while new_date <= end_date:
                 if new_date > today:
                     break
                 new_date += datetime.timedelta(days=7)
         elif rec_type == "MONTHLY":
-            for _ in range(int(num_recs)):
+            while new_date <= end_date:
                 if new_date > today:
                     break
                 new_date += datetime.timedelta(weeks=4)
