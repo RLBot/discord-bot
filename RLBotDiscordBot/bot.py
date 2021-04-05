@@ -55,12 +55,20 @@ class RLBotDiscordBot(commands.Bot):
             commands_tuple = tuple(self.command_prefix + c.name for c in self.commands)
             content = message.content.lower()
             if not content.startswith(commands_tuple):
+                # We find the longest command mentioned to allow some commands to be prefixes of others.
+                # E.g. assume we have two commands !league and !leagueranks, the message "!leagueranks" should
+                # trigger !leagueranks and not !league
+                longest_found_cmd = None
                 for command in self.settings['commands']:
-                    string_divided = content.split()
-                    for triggers in string_divided:
-                        if triggers.startswith(command):
-                            await message.channel.send(self.settings['commands'][command])
-                            return
+                    if longest_found_cmd is None or len(command) > len(longest_found_cmd):
+                        string_divided = content.split()
+                        for triggers in string_divided:
+                            if triggers.startswith(command):
+                                longest_found_cmd = command
+                                break
+                if longest_found_cmd is not None:
+                    await message.channel.send(self.settings['commands'][longest_found_cmd])
+                    return
 
     async def on_command_error(self, ctx, error: Exception):
         if isinstance(error, commands.CommandNotFound):
