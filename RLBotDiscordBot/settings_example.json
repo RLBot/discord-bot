@@ -7,6 +7,5 @@
     "Status_message": "with bots!",
     "Whitelisted_clip_domains": [
         "clips.twitch.tv"
-    ],
-    "Language_roles": ["Python"]
+    ]
 }
