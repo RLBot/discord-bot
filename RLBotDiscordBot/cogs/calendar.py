@@ -25,7 +25,7 @@ class Calendar(commands.Cog):
         to_check = today.strftime(FORMAT)
         api_key = GOOGLE_API_KEY
         r = requests.get(
-            f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=3&timeMin={to_check}&key={api_key}")
+            f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin={to_check}&key={api_key}")
         jsons = r.json()
         if len(jsons["items"]) != 0:
             tournaments_embed = await self.create_tournament_embed(jsons, today)
