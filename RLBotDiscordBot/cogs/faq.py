@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 
 from RLBotDiscordBot.bot import RLBotDiscordBot
@@ -129,12 +130,10 @@ class FaqCommands(commands.Cog):
         # Validate that faq channel exists
         faq_channel_id = self.bot.settings.get('Faq_channel')
         if faq_channel_id is None:
-            print("hi1")
             await ctx.send('FAQ channel is not set. Use `!faq_channel <#channel_id>` to set it')
             return
         faq_channel = ctx.guild.get_channel(faq_channel_id)
         if faq_channel is None:
-            print("hi2")
             await ctx.send('FAQ channel does not exist. Use `!faq_channel <#channel_id>` to set it')
             return
 
@@ -142,8 +141,8 @@ class FaqCommands(commands.Cog):
         faqs = self.get_faqs()
         for i, faq in enumerate(faqs):
             question = faq["Q"]
-            answer = faq["A"]
-            msg = await faq_channel.send(f"> **Q{i + 1}: {question}**\n{answer}\n------------------")
+            answer = "> " + faq["A"].replace('\n', '\n> ')   # Quoted
+            msg = await faq_channel.send(f"**Q{i + 1}: {question}**\n{answer}\n᲼᲼᲼᲼᲼᲼")
             faq["msg"] = msg.id   # Updates settings
 
         # Save new message ids
