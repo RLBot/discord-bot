@@ -16,7 +16,8 @@ initial_extensions = (
     'cogs.admin',
     'cogs.dm',
     'cogs.sendclip',
-    'cogs.calendar'
+    'cogs.calendar',
+    'cogs.faq',
 )
 
 
@@ -74,6 +75,13 @@ class RLBotDiscordBot(commands.Bot):
         if isinstance(error, commands.CommandNotFound):
             return
         self.logger.exception(error)
+
+    def save_and_reload_settings(self):
+        with open(self.settings_path, 'w') as file:
+            json.dump(self.settings, file, indent=4)
+
+        settings = open(self.settings_path, 'r')
+        self.settings = json.load(settings)
 
     def run(self):
         super().run(TOKEN, reconnect=True)
