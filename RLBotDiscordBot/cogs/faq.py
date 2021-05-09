@@ -25,7 +25,7 @@ class FaqCommands(commands.Cog):
             self.bot.settings['Faq_channel'] = channel_id_parsed
 
             await ctx.send('FAQ channel was successfully updated')
-            await self.refresh_faq(ctx)   # Also saves changes to settings
+            await self.refresh(ctx)   # Also saves changes to settings
 
         except ValueError:
             await ctx.send('Something went wrong. Expected a channel id, e.g. "\<#12345678987654321\>"')
@@ -42,86 +42,87 @@ class FaqCommands(commands.Cog):
             "msg": None,
         })
 
-        await self.refresh_faq(ctx)   # Also saves changes to settings
-        await ctx.send(f'Succesfully added FAQ:\n**Q{len(faqs)}: {question}**\nA: {answer}')
+        await self.refresh(ctx)   # Also saves changes to settings
+        await ctx.send(f'Succesfully added FAQ:\n**Q{len(faqs)}: {question}**\n{answer}')
 
     @commands.command()
-    async def edit_faq(self, ctx, id, question, answer):
+    async def edit_faq(self, ctx, qid, question, answer):
         if not self.check_perms(ctx):
             return
 
-        # Note that id is 1-indexed!
-        id = int(id)
+        # Convert to 0-indexed
+        qid = int(qid) - 1
 
         faqs = self.get_faqs()
-        if 0 < id <= len(faqs):
+        if 0 <= qid < len(faqs):
 
-            faq = faqs[id - 1]
+            faq = faqs[qid]
             faq['Q'] = question
             faq['A'] = answer
 
-            await self.refresh_faq(ctx)   # Also saves changes to settings
-            await ctx.send(f'Succesfully updated FAQ:\n**Q{id}: {question}**\nA: {answer}')
+            await self.refresh(ctx)   # Also saves changes to settings
+            await ctx.send(f'Succesfully updated FAQ:\n**Q{qid + 1}: {question}**\n{answer}')
 
         else:
             await ctx.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
     @commands.command()
-    async def del_faq(self, ctx, id):
+    async def del_faq(self, ctx, qid):
         if not self.check_perms(ctx):
             return
 
-        # Note that id is 1-indexed!
-        id = int(id)
+        # Convert to 0-indexed
+        qid = int(qid) - 1
 
         faqs = self.get_faqs()
-        if 0 < id <= len(faqs):
+        if 0 <= qid < len(faqs):
             await self.remove_old_faq_messages(ctx)
 
-            question = faqs[id - 1]['Q']
+            question = faqs[qid]['Q']
+            answer = faqs[qid]['A']
 
-            del faqs[id - 1]
+            del faqs[qid]
 
-            await self.refresh_faq(ctx)   # Also saves changes to settings
-            await ctx.send(f'Succesfully removed "Q{id}: {question}"')
+            await self.refresh(ctx)   # Also saves changes to settings
+            await ctx.send(f'Succesfully removed FAQ:\n"**Q{qid + 1}: {question}**\n{answer}"')
 
         else:
             await ctx.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
     @commands.command()
-    async def swap_faqs(self, ctx, id1, id2):
+    async def swap_faqs(self, ctx, qid1, qid2):
         if not self.check_perms(ctx):
             return
 
-        # Note that ids are 1-indexed!
-        id1 = int(id1)
-        id2 = int(id2)
+        # Convert to 0-indexed
+        qid1 = int(qid1) - 1
+        qid2 = int(qid2) - 1
 
-        if id1 == id2:
+        if qid1 == qid2:
             # Lol
             return
 
         faqs = self.get_faqs()
-        if 0 < id1 <= len(faqs):
-            if 0 < id2 <= len(faqs):
+        if 0 <= qid1 < len(faqs):
+            if 0 <= qid2 < len(faqs):
                 await self.remove_old_faq_messages(ctx)
 
-                faqs[id1 - 1], faqs[id2 - 1] = faqs[id2 - 1], faqs[id1 - 1]
+                faqs[qid1], faqs[qid2] = faqs[qid2], faqs[qid1]
 
-                await self.refresh_faq(ctx)  # Also saves changes to settings
-                await ctx.send(f'Successfully swapped Q{id1} and Q{id2}')
+                await self.refresh(ctx)  # Also saves changes to settings
+                await ctx.send(f'Successfully swapped Q{qid1 + 1} and Q{qid2 + 1}')
             else:
                 await ctx.send(f'The question id2 is out of bounds. There are {len(faqs)} FAQs')
         else:
             await ctx.send(f'The question id1 is out of bounds. There are {len(faqs)} FAQs')
 
-    @commands.command(aliases=['refresh_faq'])
-    async def refresh_faq_cmd(self, ctx):
+    @commands.command()
+    async def refresh_faq(self, ctx):
         if not self.check_perms(ctx):
             return
-        await self.refresh_faq(ctx)
+        await self.refresh(ctx)
 
-    async def refresh_faq(self, ctx):
+    async def refresh(self, ctx):
 
         await self.remove_old_faq_messages(ctx)
 
@@ -142,7 +143,7 @@ class FaqCommands(commands.Cog):
         for i, faq in enumerate(faqs):
             question = faq["Q"]
             answer = faq["A"]
-            msg = await faq_channel.send(f"**Q{i + 1}: {question}**\nA: {answer}")
+            msg = await faq_channel.send(f"> **Q{i + 1}: {question}**\n{answer}\n------------------")
             faq["msg"] = msg.id   # Updates settings
 
         # Save new message ids
