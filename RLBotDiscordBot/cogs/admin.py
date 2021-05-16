@@ -42,11 +42,7 @@ class AdminCommands(commands.Cog):
             previous_out = self.bot.settings['commands'][name]
 
         self.bot.settings['commands'][name] = output
-        with open(self.bot.settings_path, 'w') as file:
-            json.dump(self.bot.settings, file, indent=4)
-
-        settings = open(self.bot.settings_path, 'r')
-        self.bot.settings = json.load(settings)
+        self.bot.save_and_reload_settings()
 
         if exists:
             edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
@@ -64,8 +60,7 @@ class AdminCommands(commands.Cog):
             deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name] + '\nCommand deleted')
 
             del self.bot.settings['commands'][name]
-            with open(self.bot.settings_path, 'w') as f:
-                json.dump(self.bot.settings, f, indent=4)
+            self.bot.save_and_reload_settings()
 
             await ctx.send(deleted_text)
 
@@ -162,8 +157,7 @@ class AdminCommands(commands.Cog):
         if domain:
             if domain not in self.bot.settings['Whitelisted_clip_domains']:
                 self.bot.settings['Whitelisted_clip_domains'].append(domain)
-                with open(self.bot.settings_path, 'w') as f:
-                    json.dump(self.bot.settings, f, indent=4)
+                self.bot.save_and_reload_settings()
                 current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
                 await ctx.send(f'Domain added.\nCurrent domains:\n```{current_domains}```')
             else:
