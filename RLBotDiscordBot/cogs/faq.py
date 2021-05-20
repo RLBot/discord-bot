@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from RLBotDiscordBot.bot import RLBotDiscordBot
+from bot import RLBotDiscordBot
 
 
 class FaqCommands(commands.Cog):
@@ -9,27 +9,17 @@ class FaqCommands(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def faq_channel(self, ctx, channel_id):
+    async def faq_channel(self, ctx, channel:discord.TextChannel):
         if not self.check_perms(ctx):
             return
 
-        try:
-            channel_id_parsed = int(channel_id[3:-1])
-            channel = ctx.guild.get_channel(channel_id_parsed)
-            if channel is None:
-                raise ValueError
+        await self.remove_old_faq_messages(ctx)
 
-            # Remove messages from old faq channel
-            await self.remove_old_faq_messages(ctx)
+        # Save new faq channel
+        self.bot.settings['Faq_channel'] = channel.id
 
-            # Save new faq channel
-            self.bot.settings['Faq_channel'] = channel_id_parsed
-
-            await ctx.send('FAQ channel was successfully updated')
-            await self.refresh(ctx)   # Also saves changes to settings
-
-        except ValueError:
-            await ctx.send('Something went wrong. Expected a channel id, e.g. "\<#12345678987654321\>"')
+        await ctx.send('FAQ channel was successfully updated')
+        await self.refresh(ctx)   # Also saves changes to settings
 
     @commands.command()
     async def add_faq(self, ctx, question, answer):
