@@ -83,18 +83,26 @@ def date_time_check(today, event):
     try:
         recurrence = event["recurrence"][0].split(";")
         rec_type = recurrence[0].split("=")[1]
+        interval = recurrence[3].split("=")[1]
+        end_date_type = recurrence[2].split("=")[0]
         end_date_raw = recurrence[2].split("=")[1]
-        end_date = datetime.datetime.strptime(end_date_raw, FORMAT3)
+        if end_date_type == "COUNT":
+            if rec_type == "WEEKLY":
+                end_date = new_date + datetime.timedelta(days=7*int(interval)*int(end_date_raw))
+            elif rec_type == "MONTHLY":
+                end_date = new_date + datetime.timedelta(weeks=4*int(interval)*int(end_date_raw))
+        else:
+            end_date = datetime.datetime.strptime(end_date_raw, FORMAT3)
         if rec_type == "WEEKLY":
             while new_date <= end_date:
                 if new_date > today:
                     break
-                new_date += datetime.timedelta(days=7)
+                new_date += datetime.timedelta(days=7*int(interval))
         elif rec_type == "MONTHLY":
             while new_date <= end_date:
                 if new_date > today:
                     break
-                new_date += datetime.timedelta(weeks=4)
+                new_date += datetime.timedelta(weeks=4*int(interval))
     except Exception as e:
         print("Error checking recurrence:" + str(e))
     some_times = new_date.strftime(FORMAT2)
