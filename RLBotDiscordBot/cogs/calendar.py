@@ -46,7 +46,7 @@ class Calendar(commands.Cog):
         events = []
         for raw_event in jsons["items"]:
             name, some_time, time_until, raw_date = date_time_check(today, raw_event)
-            verb_tense = "Will begin in" if "now" in time_until else "Began"
+            verb_tense = "Will begin " if "now" in time_until else "Began"
             events.append({"name": name,
                            "some_time": some_time,
                            "time_until": time_until,
@@ -63,14 +63,14 @@ class Calendar(commands.Cog):
             if i == 0:
                 tournaments_embed = discord.Embed(
                     title=event["name"],
-                    description=f'{event["verb_tense"]} {event["time_until"]}. ({event["some_time"]}){docs}',
+                    description=f'{event["verb_tense"]} <t:{int(event["raw_date"])}:R> {docs}',
                     color=discord.Color.green()
                 )
                 if event["location"]:
                     tournaments_embed.url = event["location"]
             else:
                 tournaments_embed.add_field(name=event["name"],
-                                            value=f'{event["verb_tense"]} {event["time_until"]}. ({event["some_time"]}){docs}',
+                                            value=f'{event["verb_tense"]} <t:{int(event["raw_date"])}:R> {docs}',
                                             inline=False)
         return tournaments_embed
 
