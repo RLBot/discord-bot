@@ -46,7 +46,7 @@ class Calendar(commands.Cog):
         events = []
         for raw_event in jsons["items"]:
             name, some_time, time_until, raw_date = date_time_check(today, raw_event)
-            verb_tense = "Will begin " if "now" in time_until else "Began"
+            verb_tense = "Begins" if "now" in time_until else "Began"
             events.append({"name": name,
                            "some_time": some_time,
                            "time_until": time_until,
@@ -55,22 +55,26 @@ class Calendar(commands.Cog):
                            "location": raw_event.get("location"),
                            "docs": raw_event.get("description")})
         events.sort(key=lambda ev: ev["raw_date"])
+        tournaments_embed = discord.Embed(
+            title='',
+            description='',
+            color=discord.Color.green()
+        )
         for i, event in enumerate(events):
             if event["docs"]:
-                docs = f' | [Info]({event["docs"]})'
+                docs = f'[Docs]({event["docs"]})'
             else:
                 docs = ""
-            if i == 0:
-                tournaments_embed = discord.Embed(
-                    title=event["name"],
-                    description=f'{event["verb_tense"]} <t:{int(event["raw_date"])}:R> {docs}',
-                    color=discord.Color.green()
-                )
-                if event["location"]:
-                    tournaments_embed.url = event["location"]
+            if event["location"]:
+                twitch = f'[Twitch]({event["location"]})'
+                if docs != '':
+                    twitch = ' | ' + twitch
             else:
-                tournaments_embed.add_field(name=event["name"],
-                                            value=f'{event["verb_tense"]} <t:{int(event["raw_date"])}:R> {docs}',
+                twitch = ''
+            if twitch == '' and docs == '':
+                docs = 'No added info'
+            tournaments_embed.add_field(name=event["name"] + f' - <t:{int(event["raw_date"])}:R>',
+                                            value=f'{docs}{twitch}',
                                             inline=False)
         return tournaments_embed
 
