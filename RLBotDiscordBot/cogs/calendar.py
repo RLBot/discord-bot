@@ -113,5 +113,5 @@ def date_time_check(today, event):
     return names, new_date, time_untils, raw_date
 
 
-def setup(bot):
-    bot.add_cog(Calendar(bot))
+async def setup(bot):
+    await bot.add_cog(Calendar(bot))

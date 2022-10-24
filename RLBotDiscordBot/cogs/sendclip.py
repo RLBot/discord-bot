@@ -61,5 +61,5 @@ class SendClip(commands.Cog):
         await clip_message.add_reaction(r.choice(reaction_list))
 
 
-def setup(bot):
-    bot.add_cog(SendClip(bot))
+async def setup(bot):
+    await bot.add_cog(SendClip(bot))

@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import logging
 
@@ -40,4 +41,4 @@ def start_logging():
 if __name__ == '__main__':
     with start_logging():
         bot = RLBotDiscordBot()
-        bot.run()
+        asyncio.run(bot.run())

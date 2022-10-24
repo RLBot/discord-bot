@@ -10,5 +10,5 @@ class welcome(commands.Cog):
             await member.send(self.bot.settings['commands']['welcome_message'])
 
 
-def setup(bot):
-    bot.add_cog(welcome(bot))
+async def setup(bot):
+    await bot.add_cog(welcome(bot))
