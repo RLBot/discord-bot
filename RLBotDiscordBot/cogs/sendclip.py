@@ -41,7 +41,7 @@ class SendClip(commands.Cog):
             await message.channel.send("That message did not contain a link, please add a link to your clip.")
 
     async def post_clip(self, description, link, message):
-        avatar = message.author.avatar_url or message.author.default_avatar_url
+        avatar = message.author.display_avatar.url or author.default_avatar.url
         clips_channel = message.guild.get_channel(self.bot.settings['Clips_channel'])
         if description:
             title = description
