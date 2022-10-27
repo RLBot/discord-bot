@@ -32,14 +32,16 @@ class RLBotDiscordBot(commands.Bot):
 
         activity = discord.Game(name=self.settings['Status_message'])
 
-        super().__init__(command_prefix='!', activity=activity)
+        super().__init__(command_prefix='!', activity=activity, intents=discord.Intents.all())
 
         self.logger = logging.getLogger(__name__)
         self.remove_command('help')
 
+    async def setup_hook(self) -> None:
+
         for extension in initial_extensions:
             try:
-                self.load_extension(extension)
+                await self.load_extension(extension)
                 print(f'Cog loaded: {extension}')
             except Exception as e:
                 self.logger.error(f'There was an error loading the extension {extension}. Error: {e}')

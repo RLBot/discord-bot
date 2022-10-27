@@ -171,5 +171,5 @@ class AdminCommands(commands.Cog):
         return ctx.message.channel.id == self.bot.settings['Admin_channel']
 
 
-def setup(bot):
-    bot.add_cog(AdminCommands(bot))
+async def setup(bot):
+    await bot.add_cog(AdminCommands(bot))
