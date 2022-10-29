@@ -1,4 +1,5 @@
 import json
+import re
 
 import discord
 from discord.ext import commands
@@ -98,8 +99,16 @@ class CommandModal(discord.ui.Modal, title='Command Admin Panel'):
 
         name_lower = name.lower()
         if name != name_lower or " " in name:
-            # Todo: Show warning
-            pass
+            interaction.response.send_message(content="Command name must be lower case and contain no spaces",
+                                              ephemeral=True)
+            return
+
+        if self.slash:
+            filtered_name = re.sub('[^abcdefghijklmnopqrstuvxwyz0123456789\-_]', '', name)
+            if filtered_name != name or len(name) > 32:
+                interaction.response.send_message(content="Command name must be between 1-32 characters and contain "
+                                                          "only lower-case letters, numbers, hyphens, or underscores",
+                                                  ephemeral=True)
 
         if self.slash:
             desc = self.desc.value
@@ -117,55 +126,55 @@ class CommandModal(discord.ui.Modal, title='Command Admin Panel'):
                           'Name:\n' + old_name + \
                           ('\nDescription:\n' + old_desc)*bool(self.desc) + \
                           '\nText:\n' + old_text
-            await interaction.response.send_message(edited_text)
+            await interaction.channel.send(edited_text)
             if old_name != name:
                 command_list.pop(old_name)
         if self.slash:
             command_list[name] = [desc, text]
             if name_changed or desc_changed:
                 try:
-                    # self.bot.commands.remove(old_command)
                     self.bot.tree.remove_command(old_name)
-                    # await self.bot.tree.sync()
                 except Exception as e:
                     await interaction.response.send_message(str(e), ephemeral=True)
+                    return
 
-                new_command: app_commands.Command = app_commands.Command(callback=self.bot.on_command, description=desc, name=name)
+            new_command: app_commands.Command = app_commands.Command(callback=self.bot.on_command, description=desc, name=name)
 
             try:
                 self.bot.tree.add_command(new_command)
-                # await self.bot.tree.sync()
             except Exception as e:
                 await interaction.response.send_message(str(e), ephemeral=True)
+                return
 
         else:
             command_list[name] = text
         self.bot.save_and_reload_settings()
 
-        await interaction.followup.send(f'Added "{name}" command', ephemeral=False)
+        await interaction.response.send_message(f'Added {"slash"*self.slash + "normal"*(not self.slash)} command "{name}"',
+                                                ephemeral=False)
 
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-        await interaction.channel.send_message(f'Oops! Something went wrong:\n{str(error)}', ephemeral=True)
+        await interaction.channel.send(content=f'Oops! Something went wrong:\n{str(error)}', ephemeral=True)
 
 class CommandDeleteSelect(discord.ui.Select):
-    def __init__(self, bot, commands, placeholder, command_type) -> None:
+    def __init__(self, bot, commands, placeholder, slash) -> None:
         super().__init__(
             placeholder=placeholder,
             options=[SelectOption(label=key, value=key) for key in commands],
         )
         self.bot: commands.Bot = bot
-        self.command_type = command_type
+        self.slash = slash
 
     async def callback(self, interaction: discord.Interaction):
-        if self.command_type == "normal":
+        if not self.slash:
             self.bot.settings["commands"].pop(self.values[0])
-        elif self.command_type == "slash":
+        else:
             self.bot.tree.remove_command(self.values[0])
             self.bot.settings["slash_commands"].pop(self.values[0])
         self.bot.save_and_reload_settings()
-        await interaction.channel.send(f"Deleted {self.command_type} command {self.values[0]}")
-        await interaction.message.delete()
+        await interaction.response.send_message(content=f'Deleted {"slash"*self.slash + "normal"*(not self.slash)} command {self.values[0]}')
+        self.view.stop()
 
 class CommandEditSelect(discord.ui.Select):
     def __init__(self, bot, commands, placeholder, command_type) -> None:
@@ -194,12 +203,6 @@ class CommandEditSelect(discord.ui.Select):
         except RuntimeError as e:
             await interaction.followup.send(str(e), ephemeral=True)
 
-        try:
-            await interaction.delete_original_response()
-        except:
-            pass
-
-
 class CommandView(discord.ui.View):
     def __init__(self, bot):
         super().__init__(timeout=30)
@@ -208,30 +211,32 @@ class CommandView(discord.ui.View):
     @discord.ui.button(label="Add Slash Command", style=ButtonStyle.green, row=0, custom_id='add_slash')
     async def add_slash(self, interaction: discord.Interaction, button: discord.ui.Button):
         assert interaction.message is not None
-        await interaction.message.edit(view=None)
-
+        # await interaction.message.edit(view=None)
         # await interaction.response.defer(ephemeral=True, thinking=True)
         try:
             modal = CommandModal(bot=self.bot, slash=True)
             await interaction.response.send_modal(modal)
         except RuntimeError as e:
             await interaction.followup.send(str(e), ephemeral=True)
+        self.stop()
 
     @discord.ui.button(label="Add Normal Command", style=ButtonStyle.green, row=0, custom_id='add_normal')
     async def add_normal(self, interaction: discord.Interaction, button: discord.ui.Button):
         assert interaction.message is not None
-        await interaction.message.edit(view=None)
+        # await interaction.message.edit(view=None)
         # await interaction.response.defer(ephemeral=True, thinking=True)
         try:
             modal = CommandModal(bot=self.bot, slash=False)
             await interaction.response.send_modal(modal)
         except RuntimeError as e:
             await interaction.followup.send(str(e), ephemeral=True)
+        self.stop()
+
 
     @discord.ui.button(label="Edit Command", style=ButtonStyle.secondary, row=0, custom_id='edit')
     async def edit(self, interaction: discord.Interaction, button: discord.ui.Button):
         assert interaction.message is not None
-        await interaction.message.edit(view=None)
+        # await interaction.message.edit(view=None)
         # await interaction.response.defer(ephemeral=True, thinking=True)
         try:
             def chunks(lst, n):
@@ -249,29 +254,33 @@ class CommandView(discord.ui.View):
                 view.add_item(CommandEditSelect(self.bot, command_chunk, 'Choose slash command...', "slash"))
 
             await interaction.response.send_message(content="Choose the command to edit", view=view)
-            await interaction.message.delete()
-            if await view.wait():
-                await interaction.delete_original_response()
+            # await interaction.message.delete()
+            timout = await view.wait()
+            await interaction.delete_original_response()
             # await interaction.delete_original_response()
             # await interaction.response.delete()
         except Exception as e:
             await interaction.channel.send(content="Error: " + str(e))
+        self.stop()
+
 
     @discord.ui.button(label="Refresh / commands", style=ButtonStyle.blurple, row=0, custom_id='refresh')
     async def refresh(self, interaction: discord.Interaction, button: discord.ui.Button):
         assert interaction.message is not None
         await interaction.response.defer(ephemeral=False, thinking=True)
-        await interaction.message.edit(view=None)
+        # await interaction.message.edit(view=None)
         try:
             await self.bot.tree.sync()
             await interaction.followup.send(content="Slash commands successfully synced!")
         except Exception as e:
             await interaction.followup.send(str(e), ephemeral=True)
+        self.stop()
+
 
     @discord.ui.button(label="Delete Command", style=ButtonStyle.red, row=0, custom_id='delete')
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         assert interaction.message is not None
-        await interaction.message.edit(view=None)
+        # await interaction.message.edit(view=None)
         # await interaction.response.defer(ephemeral=True, thinking=True)
         try:
             def chunks(lst, n):
@@ -283,20 +292,20 @@ class CommandView(discord.ui.View):
             view.timeout = 60
 
             for command_chunk in chunks(list(self.bot.settings["commands"].keys()), 25):
-                view.add_item(CommandDeleteSelect(self.bot, command_chunk, 'Choose normal command...', "normal"))
+                view.add_item(CommandDeleteSelect(self.bot, command_chunk, 'Choose normal command...', slash=False))
 
             for command_chunk in chunks(list(self.bot.settings["slash_commands"].keys()), 25):
-                view.add_item(CommandDeleteSelect(self.bot, command_chunk, 'Choose slash command...', "slash"))
+                view.add_item(CommandDeleteSelect(self.bot, command_chunk, 'Choose slash command...', slash=True))
 
             await interaction.response.send_message(content="Choose the command to delete", view=view)
-            await interaction.message.delete()
-            if await view.wait():
-                await interaction.delete_original_response()
+            # await interaction.message.delete()
+            timeout = await view.wait()
+            await interaction.delete_original_response()
             # await interaction.delete_original_response()
             # await interaction.response.delete()
         except Exception as e:
-            await interaction.channel.send_message(str(e), ephemeral=True)
-
+            await interaction.channel.send(str(e))
+        self.stop()
 
 class AdminCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
@@ -323,9 +332,8 @@ class AdminCommands(commands.Cog):
             return
         cView = CommandView(self.bot)
         await ctx.interaction.response.send_message(content="Choose the command", view=cView)
-        if await cView.wait():
-            await ctx.interaction.delete_original_response()
-        # await ctx.interaction.delete_original_response()
+        timeout = await cView.wait()
+        await ctx.interaction.delete_original_response()
 
     @commands.hybrid_command(name="botmaker", description="Toggle BotMaker role on yourself", )
     async def botmaker(self, ctx: discord.ext.commands.Context):
