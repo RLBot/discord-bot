@@ -449,9 +449,15 @@ class AdminCommands(commands.Cog):
             return
         commands_list: list = list(self.bot.settings['commands'].keys())
         commands_list.sort()
+        commands_list.append('\n***Slash Commands:***')
+        for command in self.bot.settings['slash_commands'].keys():
+            commands_list.append("/" + str(command))
         commands_list.append('\n***Admin Commands:***')
         for command in self.bot.commands:
             commands_list.append(self.bot.command_prefix + str(command))
+            if isinstance(command, commands.HybridCommand):
+                commands_list.append("/" + str(command))
+
         all_commands = '\n'.join(commands_list)
 
         await ctx.send(all_commands)
