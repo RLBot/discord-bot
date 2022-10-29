@@ -2,9 +2,11 @@ import json
 import logging
 import os.path
 import sys
+import re
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 try:
     from config import TOKEN
@@ -48,6 +50,25 @@ class RLBotDiscordBot(commands.Bot):
 
     async def on_ready(self):
         self.logger.info(f'{self.user} online! (ID: {self.user.id})')
+
+        if 'slash_commands' in self.settings:
+            for name in self.settings['slash_commands']:
+                desc = self.settings['slash_commands'][name][0]
+                # command = re.sub('[^abcdefghijklmnopqrstuvxwyz0123456789\-_]', '', command)
+                # skip = False
+                # for ready_command in self.tree.get_commands():
+                #     if command == ready_command.name:
+                #         skip = True
+                d_command: app_commands.Command = app_commands.Command(callback=self.on_command, description=desc, name=name)
+                # if not skip:
+                self.tree.add_command(d_command)
+
+        await self.tree.sync()
+
+    async def on_command(self, interaction: discord.Interaction):
+        if interaction.command.name in self.settings['slash_commands']:
+            await interaction.response.send_message(self.settings['slash_commands'][interaction.command.name][1])
+        return
 
     async def on_message(self, message):
         if not message.author.bot:
