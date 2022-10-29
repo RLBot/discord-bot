@@ -99,14 +99,14 @@ class CommandModal(discord.ui.Modal, title='Command Admin Panel'):
 
         name_lower = name.lower()
         if name != name_lower or " " in name:
-            interaction.response.send_message(content="Command name must be lower case and contain no spaces",
+            await interaction.response.send_message(content="Command name must be lower case and contain no spaces",
                                               ephemeral=True)
             return
 
         if self.slash:
             filtered_name = re.sub('[^abcdefghijklmnopqrstuvxwyz0123456789\-_]', '', name)
             if filtered_name != name or len(name) > 32:
-                interaction.response.send_message(content="Command name must be between 1-32 characters and contain "
+                await interaction.response.send_message(content="Command name must be between 1-32 characters and contain "
                                                           "only lower-case letters, numbers, hyphens, or underscores",
                                                   ephemeral=True)
 
