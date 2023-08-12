@@ -3,8 +3,9 @@ import logging
 import os.path
 import sys
 
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord import Interaction
+from nextcord.ext import commands
 
 try:
     from config import TOKEN
@@ -30,9 +31,11 @@ class RLBotDiscordBot(commands.Bot):
         with open(self.settings_path, 'r') as settings:
             self.settings = json.load(settings)
 
-        activity = discord.Game(name=self.settings['Status_message'])
+        intents = nextcord.Intents.all()
 
-        super().__init__(command_prefix='!', activity=activity)
+        activity = nextcord.Game(name=self.settings['Status_message'])
+
+        super().__init__(command_prefix='!', activity=activity,intents=intents)
 
         self.logger = logging.getLogger(__name__)
         self.remove_command('help')

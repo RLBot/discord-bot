@@ -1,8 +1,11 @@
 import json
 
-import discord
+import nextcord
+from nextcord import Interaction
+from nextcord.ext import commands
+from config import RLBOT
+
 import requests
-from discord.ext import commands
 
 from bot import RLBotDiscordBot
 
@@ -11,30 +14,31 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @commands.command()
-    async def refill_botmaker(self, ctx: discord.ext.commands.Context):
-        if not self.check_perms(ctx):
-            return
-        for member in ctx.guild.members:
+    @nextcord.slash_command(name="refill_botmaker",description="Refills the botmaker role to everyone with language roles",guild_ids=[RLBOT])
+    async def refill_botmaker(self, interaction:Interaction):
+        await interaction.response.defer()
+        for member in interaction.guild.members:
             member_roles = member.roles
             for role in member_roles:
                 if role.name in self.bot.settings["Language_roles"]:
-                    await member.add_roles(discord.utils.get(ctx.guild.roles, name="BotMaker"), reason=None,
+                    await member.add_roles(nextcord.utils.get(interaction.guild.roles, name="BotMaker"), reason=None,
                                            atomic=True)
+        await interaction.followup.send("BotMaker role refilled!")
 
-    @commands.command()
-    async def botmaker(self, ctx: discord.ext.commands.Context):
-        botmaker_role = discord.utils.get(ctx.guild.roles, name='BotMaker')
-        if botmaker_role in ctx.author.roles:
-            await ctx.author.remove_roles(botmaker_role)
+    @nextcord.slash_command(name="botmaker",description="Toggles a user's BotMaker role!",guild_ids=[RLBOT])
+    async def botmaker(self, interaction:Interaction):
+        await interaction.response.defer(ephemeral=True)
+        botmaker_role = nextcord.utils.get(interaction.guild.roles, name='BotMaker')
+        if botmaker_role in interaction.user.roles:
+            await interaction.user.remove_roles(botmaker_role)
         else:
-            await ctx.author.add_roles(botmaker_role)
+            await interaction.user.add_roles(botmaker_role)
 
-    @commands.command()
-    async def add_command(self, ctx, name, *, output: str):
-        if not self.check_perms(ctx):
-            return
+        await interaction.followup.send("BotMaker toggled!",ephemeral=True)
 
+    @nextcord.slash_command(name="add_command",description="Adds a command!",guild_ids=[RLBOT])
+    async def add_command(self, interaction:Interaction,name:str,output:str):
+        await interaction.response.defer()
         name = name.lower()
         exists = name in self.bot.settings['commands']
 
@@ -46,15 +50,13 @@ class AdminCommands(commands.Cog):
 
         if exists:
             edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
-            await ctx.send(edited_text)
+            await interaction.followup.send(edited_text)
         else:
-            await ctx.send('Command added')
+            await interaction.followup.send('Command added')
 
-    @commands.command()
-    async def del_command(self, ctx, *, name):
-        if not self.check_perms(ctx):
-            return
-
+    @nextcord.slash_command(name="del_command",description="Deletes a command!",guild_ids=[RLBOT])
+    async def del_command(self, interaction:Interaction,name:str):
+        await interaction.response.defer()
         name = name.lower()
         if name in self.bot.settings['commands']:
             deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name] + '\nCommand deleted')
@@ -62,113 +64,76 @@ class AdminCommands(commands.Cog):
             del self.bot.settings['commands'][name]
             self.bot.save_and_reload_settings()
 
-            await ctx.send(deleted_text)
-
-    @commands.command()
-    async def presence(self, ctx, *args):
-        if not self.check_perms(ctx):
+            await interaction.followup.send(deleted_text)
             return
-        if not args:
-            help_message = 'Example uses:\n' \
-                           '!presence reset\n' \
-                           '!presence "`stream`" "`stream name`" "`stream url`"\n' \
-                           '`Streaming ...`\n' \
-                           '!presence "`playing`" "`custom name`"\n' \
-                           '`Playing ...`\n' \
-                           '!presence "`listening`" "`custom name`"\n' \
-                           '`Listening to ...`\n' \
-                           '!presence "`competing`" "`custom name`"\n' \
-                           '`Competing in ...`\n' \
-                           '!presence "`watching`" "`custom name`"\n' \
-                           '`Watching ...`'
-            await ctx.send(help_message)
-            return
-        presence_type = args[0].lower()
+        await interaction.followup.send(f"No command named {name} found!")
 
-        name = ' '.join(args[1:])
-        presence_dict = {'playing': discord.ActivityType.playing,
-                         'listening': discord.ActivityType.listening,
-                         'competing': discord.ActivityType.competing,
-                         'watching': discord.ActivityType.watching}
+    @nextcord.slash_command(name="change_presence",description="Change the presence!",guild_ids=[RLBOT])
+    async def presence(self, interaction:Interaction,type:str = nextcord.SlashOption(name="type",choices=["reset","stream","playing","listening","competing","watching"]),action:str="Bots", url:str=None):
+        await interaction.response.defer()
 
-        if presence_type == 'stream':
-            name = args[1]
-            url = args[2]
 
-            await self.bot.change_presence(activity=discord.Streaming(name=name, url=url))
+        presence_dict = {'playing': nextcord.ActivityType.playing,
+                         'listening': nextcord.ActivityType.listening,
+                         'competing': nextcord.ActivityType.competing,
+                         'watching': nextcord.ActivityType.watching}
 
-        elif presence_type in presence_dict.keys():
-            presence = presence_dict[presence_type]
-            await self.bot.change_presence(activity=discord.Activity(type=presence, name=name))
+        if type == 'stream':
+            await self.bot.change_presence(activity=nextcord.Streaming(name=action, url=url))
 
-        elif presence_type == 'reset':
+        elif type in presence_dict.keys():
+            presence = presence_dict[type]
+            await self.bot.change_presence(activity=nextcord.Activity(type=presence, name=action))
+
+        elif type == 'reset':
             await self.bot.change_presence()
 
-        else:
-            await ctx.send(f'Presence type unsupported: `{presence_type}`')
-            return
+        await interaction.followup.send('Presence updated')
 
-        await ctx.send('Presence updated')
+    @nextcord.slash_command(name="get_settings",description="Get the settings for the bot!",guild_ids=[RLBOT])
+    async def give_settings(self, interaction:Interaction):
+        await interaction.response.defer()
+        await interaction.followup.send(file=nextcord.File(self.bot.settings_path))
 
-    @commands.command()
-    async def give_settings(self, ctx):
-        if not self.check_perms(ctx):
-            return
+    @nextcord.slash_command(name="set_settings",description="Set the settings for the bot!",guild_ids=[RLBOT])
+    async def take_settings(self, interaction:Interaction,attachment:nextcord.Attachment):
+        await interaction.response.defer()
+        url = attachment.url
+        r = requests.get(url, allow_redirects=True)
 
-        await ctx.send(file=discord.File(self.bot.settings_path))
+        with open(self.bot.settings_path, 'wb') as f:
+            f.write(r.content)
+        with open(self.bot.settings_path, 'r') as f:
+            self.bot.settings = json.load(f)
 
-    @commands.command()
-    async def take_settings(self, ctx):
-        if not self.check_perms(ctx):
-            return
-        attachment = ctx.message.attachments
+        await interaction.followup.send('Settings updated')
 
-        if len(attachment) > 0:
-            url = attachment[0].url
-            r = requests.get(url, allow_redirects=True)
-
-            with open(self.bot.settings_path, 'wb') as f:
-                f.write(r.content)
-            with open(self.bot.settings_path, 'r') as f:
-                self.bot.settings = json.load(f)
-
-            await ctx.send('Settings updated')
-
-        else:
-            await ctx.send('You know very well you should provide a file!')
-
-    @commands.command(aliases=['commands'])
-    async def command_list(self, ctx):
-        if not self.check_perms(ctx):
-            return
+    @nextcord.slash_command(name="commands",description="List every bot command",guild_ids=[RLBOT])
+    async def command_list(self, interaction:Interaction):
+        await interaction.response.defer()
         commands_list: list = list(self.bot.settings['commands'].keys())
         commands_list.sort()
-        commands_list.append('\n***Admin Commands:***')
-        for command in self.bot.commands:
-            commands_list.append(self.bot.command_prefix + str(command))
         all_commands = '\n'.join(commands_list)
 
-        await ctx.send(all_commands)
+        await interaction.followup.send(all_commands)
 
-    @commands.command()
-    async def whitelist_domain(self, ctx, *, domain: str = ''):
-        if not self.check_perms(ctx):
-            return
+    @nextcord.slash_command(name="whitelist_domain",description="Whitelist a given domain (blank to list all domains)",guild_ids=[RLBOT])
+    async def whitelist_domain(self, interaction:Interaction,domain:str=None):
+        await interaction.response.defer()
+        
         if domain:
             if domain not in self.bot.settings['Whitelisted_clip_domains']:
                 self.bot.settings['Whitelisted_clip_domains'].append(domain)
                 self.bot.save_and_reload_settings()
                 current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
-                await ctx.send(f'Domain added.\nCurrent domains:\n```{current_domains}```')
+                await interaction.followup.send(f'Domain added.\nCurrent domains:\n```{current_domains}```')
             else:
                 current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
-                await ctx.send(f'Domain already existed.\nCurrent domains:\n```{current_domains}```')
+                await interaction.followup.send(f'Domain already existed.\nCurrent domains:\n```{current_domains}```')
         else:
             current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
-            await ctx.send(f'Current domains:\n```{current_domains}```')
+            await interaction.followup.send(f'Current domains:\n```{current_domains}```')
 
-    def check_perms(self, ctx):
-        return ctx.message.channel.id == self.bot.settings['Admin_channel']
 
 
 def setup(bot):

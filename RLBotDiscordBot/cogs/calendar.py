@@ -1,13 +1,15 @@
 import datetime
 
-import discord
+import nextcord
+from nextcord import Interaction
+from nextcord.ext import commands
+
 import requests
 from config import GOOGLE_API_KEY
-from discord.ext import commands
-from discord.ext import commands
 from natural import date
 
 from bot import RLBotDiscordBot
+from config import RLBOT
 
 FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 FORMAT2 = "%B %d, %H:%M UTC"
@@ -18,47 +20,46 @@ class Calendar(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @commands.command(aliases=['tournaments'])
-    async def tournament(self, ctx: discord.ext.commands.Context, *args):
+    @nextcord.slash_command(name="tournaments",description="Gets upcoming RLBot tournaments!",guild_ids=[RLBOT])
+    async def tournament(self, interaction:Interaction):
 
         today = datetime.datetime.utcnow()
+        #print(today)
         to_check = today.strftime(FORMAT)
         api_key = GOOGLE_API_KEY
         r = requests.get(
             f"https://www.googleapis.com/calendar/v3/calendars/rlbotofficial@gmail.com/events?maxResults=10&timeMin={to_check}&key={api_key}")
         jsons = r.json()
+        #print(jsons)
         if len(jsons["items"]) != 0:
             tournaments_embed = await self.create_tournament_embed(jsons, today)
         else:
-            tournaments_embed = discord.Embed(
+            tournaments_embed = nextcord.Embed(
                 description=f"No tournaments currently scheduled, if any are, they will appear here!",
-                color=discord.Color.red())
+                color=nextcord.Color.red())
 
         tournaments_embed.set_author(name="Upcoming Tournaments",
                                      icon_url="https://cdn.discordapp.com/avatars/474703464199356447/720a25621983c452cf71422a51b733a1.png?size=128",
                                      url="http://rlbot.org/tournament/")
         tournaments_embed.set_footer(text="http://rlbot.org/tournament/")
-        await ctx.channel.send(" ", embed=tournaments_embed)
+        await interaction.send(" ", embed=tournaments_embed)
 
     @staticmethod
     async def create_tournament_embed(jsons, today):
-        tournaments_embed = discord.Embed(color=discord.Color.green())
+        tournaments_embed = nextcord.Embed(color=nextcord.Color.green())
         events = []
         for raw_event in jsons["items"]:
-            name, some_time, time_until, raw_date = date_time_check(today, raw_event)
-            verb_tense = "Begins" if "now" in time_until else "Began"
+            name, some_time, raw_date = date_time_check(today, raw_event)
             events.append({"name": name,
                            "some_time": some_time,
-                           "time_until": time_until,
                            "raw_date": raw_date,
-                           "verb_tense": verb_tense,
                            "location": raw_event.get("location"),
-                           "docs": raw_event.get("description")})
+                           "docs": raw_event.get("description").split('"')[1].split("</a>")[0]})
         events.sort(key=lambda ev: ev["raw_date"])
-        tournaments_embed = discord.Embed(
+        tournaments_embed = nextcord.Embed(
             title='',
             description='',
-            color=discord.Color.green()
+            color=nextcord.Color.green()
         )
         for i, event in enumerate(events):
             if event["docs"]:
@@ -73,7 +74,7 @@ class Calendar(commands.Cog):
                 twitch = ''
             if twitch == '' and docs == '':
                 docs = 'No added info'
-            tournaments_embed.add_field(name=event["name"] + f' - <t:{int(some_time.timestamp())}:R>',
+            tournaments_embed.add_field(name=event["name"] + f' - <t:{int(event["some_time"].timestamp())}:R>',
                                             value=f'{docs}{twitch}',
                                             inline=False)
         return tournaments_embed
@@ -83,7 +84,10 @@ def date_time_check(today, event):
     names = event["summary"]
     start = event["start"]["dateTime"]
     new_date = datetime.datetime.strptime(start, FORMAT)
+    new_date = datetime.datetime(new_date.year,new_date.month,new_date.day,new_date.hour,new_date.minute,new_date.second,tzinfo=datetime.UTC)
     raw_date = new_date.timestamp()
+    print(new_date)
+    print(new_date.timestamp())
     try:
         recurrence = event["recurrence"][0].split(";")
         rec_type = recurrence[0].split("=")[1]
@@ -109,8 +113,7 @@ def date_time_check(today, event):
                 new_date += datetime.timedelta(weeks=4)
     except Exception as e:
         print("Error checking recurrence:" + str(e))
-    time_untils = date.duration(new_date, now=today, precision=3)
-    return names, new_date, time_untils, raw_date
+    return names, new_date, raw_date
 
 
 def setup(bot):
