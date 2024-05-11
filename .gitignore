@@ -112,3 +112,6 @@ dmypy.json
 /config.py
 /.idea
 .idea/inspectionProfiles/
+
+# =================
+RLBotDiscordBot/settings.json
