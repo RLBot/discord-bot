@@ -166,5 +166,5 @@ class FaqCommands(commands.Cog):
         return ctx.message.channel.id == self.bot.settings['Admin_channel']
 
 
-async def setup(bot):
-    await bot.add_cog(FaqCommands(bot))
+def setup(bot):
+    bot.add_cog(FaqCommands(bot))
