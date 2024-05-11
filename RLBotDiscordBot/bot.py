@@ -34,7 +34,7 @@ class RLBotDiscordBot(commands.Bot):
 
         activity = nextcord.Game(name=self.settings['Status_message'])
 
-        super().__init__(command_prefix='!', activity=activity,intents=intents)
+        super().__init__(command_prefix='!', activity=activity, intents=intents)
 
         self.logger = logging.getLogger(__name__)
         self.remove_command('help')
@@ -42,7 +42,7 @@ class RLBotDiscordBot(commands.Bot):
         for extension in initial_extensions:
             try:
                 self.load_extension(extension)
-                print(f'Cog loaded: {extension}')
+                self.logger.info(f'Cog loaded: {extension}')
             except Exception as e:
                 self.logger.error(f'There was an error loading the extension {extension}. Error: {e}')
 
@@ -53,7 +53,7 @@ class RLBotDiscordBot(commands.Bot):
         if not message.author.bot:
             await self.process_commands(message)
             # Check if the message doesn't start with other (not in settings.json) command
-            # This is done to prevent conflits
+            # This is done to prevent conflicts
             # Not sure if this is the best way to do it, but this is the best I could do.
             commands_tuple = tuple(self.command_prefix + c.name for c in self.commands)
             content = message.content.lower()

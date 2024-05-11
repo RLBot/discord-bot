@@ -177,7 +177,8 @@
         "!rlbotargs": "`-rlbot RLBot_ControllerURL=127.0.0.1:23233 RLBot_PacketSendRate=240 -nomovie`",
         "!nexto": "Nexto is now in the botpack! See <#844986187751358524> for how to download it",
         "!seer": "The version of Seer you saw in Sledge's video is NOT available to the public. Seer in the botpack is an older, much worse version. The best public bot is still Nexto.",
-        "!rocketsim": "RocketSim repo: <https://github.com/ZealanL/RocketSim>"
+        "!rocketsim": "RocketSim repo: <https://github.com/ZealanL/RocketSim>",
+        "test": "Success!"
     },
     "Admin_channel": 834453317315723264,
     "Clips_channel": 834453316188504074,

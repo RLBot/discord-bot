@@ -3,11 +3,10 @@ import logging
 
 from bot import RLBotDiscordBot
 
-""" Setup Logging for the bot """
-
 
 @contextlib.contextmanager
 def start_logging():
+    """ Setup Logging for the bot """
     log = logging.getLogger()
     log.setLevel(logging.INFO)
     try:
@@ -36,8 +35,8 @@ def start_logging():
             log.removeHandler(hdlr)
 
 
-""" Runs the bot """
 if __name__ == '__main__':
+    """ Runs the bot """
     with start_logging():
         bot = RLBotDiscordBot()
         bot.run()

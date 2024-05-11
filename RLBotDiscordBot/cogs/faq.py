@@ -10,8 +10,8 @@ class FaqCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @nextcord.slash_command(name="faq_channel",description="Update FAQ channel",guild_ids=[RLBOT])
-    async def faq_channel(self, interaction:Interaction, channel:nextcord.TextChannel):
+    @nextcord.slash_command(name="faq_channel", description="Update FAQ channel", guild_ids=[RLBOT])
+    async def faq_channel(self, interaction: Interaction, channel: nextcord.TextChannel):
         await interaction.response.defer()
         await self.remove_old_faq_messages(interaction)
 
@@ -19,10 +19,10 @@ class FaqCommands(commands.Cog):
         self.bot.settings['Faq_channel'] = channel.id
 
         await interaction.followup.send('FAQ channel was successfully updated')
-        await self.refresh(interaction)   # Also saves changes to settings
+        await self.refresh(interaction)  # Also saves changes to settings
 
-    @nextcord.slash_command(name="add_faq",description="Add an FAQ",guild_ids=[RLBOT])
-    async def add_faq(self, interaction:Interaction, question:str, answer:str):
+    @nextcord.slash_command(name="add_faq", description="Add an FAQ", guild_ids=[RLBOT])
+    async def add_faq(self, interaction: Interaction, question: str, answer: str):
         await interaction.response.defer()
 
         faqs = self.get_faqs()
@@ -32,11 +32,11 @@ class FaqCommands(commands.Cog):
             "msg": None,
         })
 
-        await self.refresh(interaction)   # Also saves changes to settings
+        await self.refresh(interaction)  # Also saves changes to settings
         await interaction.followup.send(f'Succesfully added FAQ:\n**Q{len(faqs)}: {question}**\n{answer}')
 
-    @nextcord.slash_command(name="edit_faq",description="Edit an FAQ",guild_ids=[RLBOT])
-    async def edit_faq(self, interaction:Interaction, qid:int, question:str, answer:str):
+    @nextcord.slash_command(name="edit_faq", description="Edit a FAQ", guild_ids=[RLBOT])
+    async def edit_faq(self, interaction: Interaction, qid: int, question: str, answer: str):
         await interaction.response.defer()
 
         # Convert to 0-indexed
@@ -49,14 +49,14 @@ class FaqCommands(commands.Cog):
             faq['Q'] = question
             faq['A'] = answer
 
-            await self.refresh(interaction)   # Also saves changes to settings
+            await self.refresh(interaction)  # Also saves changes to settings
             await interaction.followup.send(f'Succesfully updated FAQ:\n**Q{qid + 1}: {question}**\n{answer}')
 
         else:
             await interaction.followup.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="del_faq",description="Delete an FAQ",guild_ids=[RLBOT])
-    async def del_faq(self, interaction:Interaction, qid:int):
+    @nextcord.slash_command(name="del_faq", description="Delete an FAQ", guild_ids=[RLBOT])
+    async def del_faq(self, interaction: Interaction, qid: int):
         await interaction.response.defer()
         # Convert to 0-indexed
         qid = int(qid) - 1
@@ -70,14 +70,14 @@ class FaqCommands(commands.Cog):
 
             del faqs[qid]
 
-            await self.refresh(interaction)   # Also saves changes to settings
+            await self.refresh(interaction)  # Also saves changes to settings
             await interaction.followup.send(f'Succesfully removed FAQ:\n"**Q{qid + 1}: {question}**\n{answer}"')
 
         else:
             await interaction.followup.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="swap_faq",description="Swap two FAQs",guild_ids=[RLBOT])
-    async def swap_faqs(self, interaction:Interaction, qid1:int, qid2:int):
+    @nextcord.slash_command(name="swap_faq", description="Swap two FAQs", guild_ids=[RLBOT])
+    async def swap_faqs(self, interaction: Interaction, qid1: int, qid2: int):
         await interaction.response.defer()
         # Convert to 0-indexed
         qid1 = int(qid1) - 1
@@ -101,13 +101,13 @@ class FaqCommands(commands.Cog):
         else:
             await interaction.followup.send(f'The question id1 is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="refresh_faq",description="Refresh FAQs",guild_ids=[RLBOT])
-    async def refresh_faq(self, interaction:Interaction):
+    @nextcord.slash_command(name="refresh_faq", description="Refresh FAQs", guild_ids=[RLBOT])
+    async def refresh_faq(self, interaction: Interaction):
         await interaction.response.defer()
         await self.refresh(interaction)
         await interaction.followup.send("FAQ refreshed")
 
-    async def refresh(self, interaction:Interaction):
+    async def refresh(self, interaction: Interaction):
 
         await self.remove_old_faq_messages(interaction)
 
@@ -125,14 +125,14 @@ class FaqCommands(commands.Cog):
         faqs = self.get_faqs()
         for i, faq in enumerate(faqs):
             question = faq["Q"]
-            answer = "> " + faq["A"].replace('\n', '\n> ')   # Quoted
+            answer = "> " + faq["A"].replace('\n', '\n> ')  # Quoted
             msg = await faq_channel.send(f"**Q{i + 1}: {question}**\n{answer}\n᲼᲼᲼᲼᲼᲼")
-            faq["msg"] = msg.id   # Updates settings
+            faq["msg"] = msg.id  # Updates settings
 
         # Save new message ids
         self.bot.save_and_reload_settings()
 
-    async def remove_old_faq_messages(self, interaction:Interaction):
+    async def remove_old_faq_messages(self, interaction: Interaction):
         faq_channel_id = self.bot.settings.get('Faq_channel')
         if faq_channel_id is not None:
             faq_channel = interaction.guild.get_channel(faq_channel_id)
@@ -155,6 +155,7 @@ class FaqCommands(commands.Cog):
             faqs = []
             self.bot.settings['Faqs'] = faqs
         return faqs
+
 
 def setup(bot):
     bot.add_cog(FaqCommands(bot))
