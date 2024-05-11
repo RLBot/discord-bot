@@ -2,11 +2,9 @@ import json
 import logging
 import os.path
 import sys
-import re
 
-import discord
-from discord.ext import commands
-from discord import app_commands
+import nextcord
+from nextcord.ext import commands
 
 try:
     from config import TOKEN
@@ -32,43 +30,24 @@ class RLBotDiscordBot(commands.Bot):
         with open(self.settings_path, 'r') as settings:
             self.settings = json.load(settings)
 
-        activity = discord.Game(name=self.settings['Status_message'])
+        intents = nextcord.Intents.all()
 
-        super().__init__(command_prefix='!', activity=activity, intents=discord.Intents.all())
+        activity = nextcord.Game(name=self.settings['Status_message'])
+
+        super().__init__(command_prefix='!', activity=activity,intents=intents)
 
         self.logger = logging.getLogger(__name__)
         self.remove_command('help')
 
-    async def setup_hook(self) -> None:
-
         for extension in initial_extensions:
             try:
-                await self.load_extension(extension)
+                self.load_extension(extension)
                 print(f'Cog loaded: {extension}')
             except Exception as e:
                 self.logger.error(f'There was an error loading the extension {extension}. Error: {e}')
 
     async def on_ready(self):
         self.logger.info(f'{self.user} online! (ID: {self.user.id})')
-
-        if 'slash_commands' in self.settings:
-            for name in self.settings['slash_commands']:
-                desc = self.settings['slash_commands'][name][0]
-                # command = re.sub('[^abcdefghijklmnopqrstuvxwyz0123456789\-_]', '', command)
-                # skip = False
-                # for ready_command in self.tree.get_commands():
-                #     if command == ready_command.name:
-                #         skip = True
-                d_command: app_commands.Command = app_commands.Command(callback=self.on_command, description=desc, name=name)
-                # if not skip:
-                self.tree.add_command(d_command)
-
-        await self.tree.sync()
-
-    async def on_command(self, interaction: discord.Interaction):
-        if interaction.command.name in self.settings['slash_commands']:
-            await interaction.response.send_message(self.settings['slash_commands'][interaction.command.name][1])
-        return
 
     async def on_message(self, message):
         if not message.author.bot:
