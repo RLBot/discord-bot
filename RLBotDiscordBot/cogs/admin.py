@@ -8,6 +8,7 @@ from config import GUILDS
 import requests
 
 from bot import RLBotDiscordBot
+from settings import SETTINGS_PATH, load_settings
 
 
 class AdminCommands(commands.Cog):
@@ -21,7 +22,7 @@ class AdminCommands(commands.Cog):
         for member in interaction.guild.members:
             member_roles = member.roles
             for role in member_roles:
-                if role.name in self.bot.settings["Language_roles"]:
+                if role.name in self.bot.settings.setdefault("Language_roles", []):
                     await member.add_roles(nextcord.utils.get(interaction.guild.roles, name="BotMaker"), reason=None,
                                            atomic=True)
         await interaction.followup.send("BotMaker role refilled!")
@@ -41,7 +42,7 @@ class AdminCommands(commands.Cog):
     async def add_command(self, interaction: Interaction, name: str, output: str):
         await interaction.response.defer()
         name = name.lower()
-        exists = name in self.bot.settings['commands']
+        exists = name in self.bot.settings.setdefault('commands', {})
 
         if exists:
             previous_out = self.bot.settings['commands'][name]
@@ -59,7 +60,7 @@ class AdminCommands(commands.Cog):
     async def del_command(self, interaction: Interaction, name: str):
         await interaction.response.defer()
         name = name.lower()
-        if name in self.bot.settings['commands']:
+        if name in self.bot.settings.setdefault('commands', {}):
             deleted_text = 'Previous output:\n' + str(self.bot.settings['commands'][name] + '\nCommand deleted')
 
             del self.bot.settings['commands'][name]
@@ -97,7 +98,7 @@ class AdminCommands(commands.Cog):
     @nextcord.slash_command(name="get_settings", description="Get the settings for the bot!", guild_ids=GUILDS)
     async def give_settings(self, interaction: Interaction):
         await interaction.response.defer()
-        await interaction.followup.send(file=nextcord.File(self.bot.settings_path))
+        await interaction.followup.send(file=nextcord.File(SETTINGS_PATH))
 
     @nextcord.slash_command(name="set_settings", description="Set the settings for the bot!", guild_ids=GUILDS)
     async def take_settings(self, interaction: Interaction, attachment: nextcord.Attachment):
@@ -105,17 +106,16 @@ class AdminCommands(commands.Cog):
         url = attachment.url
         r = requests.get(url, allow_redirects=True)
 
-        with open(self.bot.settings_path, 'wb') as f:
+        with open(SETTINGS_PATH, 'wb') as f:
             f.write(r.content)
-        with open(self.bot.settings_path, 'r') as f:
-            self.bot.settings = json.load(f)
+        self.bot.settings = load_settings()
 
         await interaction.followup.send('Settings updated')
 
     @nextcord.slash_command(name="commands", description="List every bot command", guild_ids=GUILDS)
     async def command_list(self, interaction: Interaction):
         await interaction.response.defer()
-        commands_list: list = list(self.bot.settings['commands'].keys())
+        commands_list: list = list(self.bot.settings.setdefault('commands', {}).keys())
         commands_list.sort()
         all_commands = '\n'.join(commands_list)
 
@@ -127,16 +127,16 @@ class AdminCommands(commands.Cog):
         await interaction.response.defer()
 
         if domain:
-            if domain not in self.bot.settings['Whitelisted_clip_domains']:
+            if domain not in self.bot.settings.setdefault('Whitelisted_clip_domains', []):
                 self.bot.settings['Whitelisted_clip_domains'].append(domain)
                 self.bot.save_and_reload_settings()
                 current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
                 await interaction.followup.send(f'Domain added.\nCurrent domains:\n```{current_domains}```')
             else:
                 current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
-                await interaction.followup.send(f'Domain already existed.\nCurrent domains:\n```{current_domains}```')
+                await interaction.followup.send(f'Domain is already whitelisted.\nCurrent domains:\n```{current_domains}```')
         else:
-            current_domains = "\n".join(self.bot.settings["Whitelisted_clip_domains"])
+            current_domains = "\n".join(self.bot.settings.setdefault("Whitelisted_clip_domains", []))
             await interaction.followup.send(f'Current domains:\n```{current_domains}```')
 
 

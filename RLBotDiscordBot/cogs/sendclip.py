@@ -18,6 +18,9 @@ class SendClip(commands.Cog):
     async def sendclip(self, interaction: Interaction, clip_desc: str = "Bot Clip", file: nextcord.Attachment = None,
                        url: str = None):
         await interaction.response.defer(ephemeral=True)
+        if 'Clips_channel' not in self.bot.settings:
+            await interaction.followup.send("Sorry. No clips channel has been set up. Ask your moderators for it.")
+            return
         final_url = None
         if file != None and url != None:
             await interaction.followup.send("Please only attach a file or a URL, not both!", ephemeral=True)
@@ -35,7 +38,7 @@ class SendClip(commands.Cog):
         valid_schemes = ["https", "http"]
         if link.scheme in valid_schemes:
             clip_domain = re.sub(r'^www\.', '', link.netloc, re.IGNORECASE)
-            if clip_domain in self.bot.settings['Whitelisted_clip_domains']:
+            if clip_domain in self.bot.settings.setdefault('Whitelisted_clip_domains', []):
                 await self.post_clip(clip_desc, link, interaction)
                 await interaction.followup.send("Clip sent!", ephemeral=True)
             else:
