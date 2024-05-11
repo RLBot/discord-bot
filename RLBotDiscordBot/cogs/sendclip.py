@@ -7,14 +7,14 @@ from nextcord import Interaction
 from nextcord.ext import commands
 
 from bot import RLBotDiscordBot
-from config import RLBOT
+from config import GUILDS
 
 
 class SendClip(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @nextcord.slash_command(name="sendclip", description="Send a clip of your bot doing things!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="sendclip", description="Send a clip of your bot doing things!", guild_ids=GUILDS)
     async def sendclip(self, interaction: Interaction, clip_desc: str = "Bot Clip", file: nextcord.Attachment = None,
                        url: str = None):
         await interaction.response.defer(ephemeral=True)

@@ -3,7 +3,7 @@ import json
 import nextcord
 from nextcord import Interaction
 from nextcord.ext import commands
-from config import RLBOT
+from config import GUILDS
 
 import requests
 
@@ -15,7 +15,7 @@ class AdminCommands(commands.Cog):
         self.bot = bot
 
     @nextcord.slash_command(name="refill_botmaker",
-                            description="Refills the botmaker role to everyone with language roles", guild_ids=[RLBOT])
+                            description="Refills the botmaker role to everyone with language roles", guild_ids=GUILDS)
     async def refill_botmaker(self, interaction: Interaction):
         await interaction.response.defer()
         for member in interaction.guild.members:
@@ -26,7 +26,7 @@ class AdminCommands(commands.Cog):
                                            atomic=True)
         await interaction.followup.send("BotMaker role refilled!")
 
-    @nextcord.slash_command(name="botmaker", description="Toggles a user's BotMaker role!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="botmaker", description="Toggles a user's BotMaker role!", guild_ids=GUILDS)
     async def botmaker(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
         botmaker_role = nextcord.utils.get(interaction.guild.roles, name='BotMaker')
@@ -37,7 +37,7 @@ class AdminCommands(commands.Cog):
 
         await interaction.followup.send("BotMaker toggled!", ephemeral=True)
 
-    @nextcord.slash_command(name="add_command", description="Adds a command!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="add_command", description="Adds a command!", guild_ids=GUILDS)
     async def add_command(self, interaction: Interaction, name: str, output: str):
         await interaction.response.defer()
         name = name.lower()
@@ -55,7 +55,7 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.followup.send('Command added')
 
-    @nextcord.slash_command(name="del_command", description="Deletes a command!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="del_command", description="Deletes a command!", guild_ids=GUILDS)
     async def del_command(self, interaction: Interaction, name: str):
         await interaction.response.defer()
         name = name.lower()
@@ -71,7 +71,7 @@ class AdminCommands(commands.Cog):
 
     PRESENCE_OPTIONS = ["reset", "stream", "playing", "listening", "competing", "watching"]
 
-    @nextcord.slash_command(name="change_presence", description="Change the presence!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="change_presence", description="Change the presence!", guild_ids=GUILDS)
     async def presence(self, interaction: Interaction,
                        type: str = nextcord.SlashOption(name="type", choices=PRESENCE_OPTIONS), action: str = "Bots",
                        url: str = None):
@@ -94,12 +94,12 @@ class AdminCommands(commands.Cog):
 
         await interaction.followup.send('Presence updated')
 
-    @nextcord.slash_command(name="get_settings", description="Get the settings for the bot!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="get_settings", description="Get the settings for the bot!", guild_ids=GUILDS)
     async def give_settings(self, interaction: Interaction):
         await interaction.response.defer()
         await interaction.followup.send(file=nextcord.File(self.bot.settings_path))
 
-    @nextcord.slash_command(name="set_settings", description="Set the settings for the bot!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="set_settings", description="Set the settings for the bot!", guild_ids=GUILDS)
     async def take_settings(self, interaction: Interaction, attachment: nextcord.Attachment):
         await interaction.response.defer()
         url = attachment.url
@@ -112,7 +112,7 @@ class AdminCommands(commands.Cog):
 
         await interaction.followup.send('Settings updated')
 
-    @nextcord.slash_command(name="commands", description="List every bot command", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="commands", description="List every bot command", guild_ids=GUILDS)
     async def command_list(self, interaction: Interaction):
         await interaction.response.defer()
         commands_list: list = list(self.bot.settings['commands'].keys())
@@ -122,7 +122,7 @@ class AdminCommands(commands.Cog):
         await interaction.followup.send(all_commands)
 
     @nextcord.slash_command(name="whitelist_domain", description="Whitelist a given domain (blank to list all domains)",
-                            guild_ids=[RLBOT])
+                            guild_ids=GUILDS)
     async def whitelist_domain(self, interaction: Interaction, domain: str = None):
         await interaction.response.defer()
 

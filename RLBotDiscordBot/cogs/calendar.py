@@ -8,7 +8,7 @@ import requests
 from config import GOOGLE_API_KEY
 
 from bot import RLBotDiscordBot
-from config import RLBOT
+from config import GUILDS
 
 FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 FORMAT2 = "%B %d, %H:%M UTC"
@@ -19,7 +19,7 @@ class Calendar(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @nextcord.slash_command(name="tournaments", description="Gets upcoming RLBot tournaments!", guild_ids=[RLBOT])
+    @nextcord.slash_command(name="tournaments", description="Gets upcoming RLBot tournaments!", guild_ids=GUILDS)
     async def tournament(self, interaction: Interaction):
 
         today = datetime.datetime.utcnow()

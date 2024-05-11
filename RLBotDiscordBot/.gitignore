@@ -109,6 +109,8 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-/config.py
 /.idea
 .idea/inspectionProfiles/
+
+# ==========
+settings.json

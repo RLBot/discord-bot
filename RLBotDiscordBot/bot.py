@@ -1,16 +1,11 @@
 import json
 import logging
 import os.path
-import sys
 
 import nextcord
 from nextcord.ext import commands
 
-try:
-    from config import TOKEN
-except ImportError:
-    print('Unable to run bot, as token does not exist!')
-    sys.exit()
+from config import TOKEN
 
 initial_extensions = (
     'cogs.admin',
