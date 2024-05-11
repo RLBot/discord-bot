@@ -6,7 +6,6 @@ from nextcord.ext import commands
 
 import requests
 from config import GOOGLE_API_KEY
-from natural import date
 
 from bot import RLBotDiscordBot
 from config import RLBOT
