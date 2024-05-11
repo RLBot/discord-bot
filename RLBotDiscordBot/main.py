@@ -1,13 +1,14 @@
 import contextlib
 import logging
+import sys
 
 from bot import RLBotDiscordBot
-
-""" Setup Logging for the bot """
+from config import TOKEN, GOOGLE_API_KEY
 
 
 @contextlib.contextmanager
 def start_logging():
+    """ Setup Logging for the bot """
     log = logging.getLogger()
     log.setLevel(logging.INFO)
     try:
@@ -36,8 +37,18 @@ def start_logging():
             log.removeHandler(hdlr)
 
 
-""" Runs the bot """
 if __name__ == '__main__':
+    """ Runs the bot """
     with start_logging():
+        logger = logging.getLogger(__name__)
+
+        if TOKEN is None:
+            logger.fatal(
+                'Unable to run bot as environment variable \'TOKEN\' is not set! Please set it to a valid Discord bot token.')
+            sys.exit(1)
+
+        if GOOGLE_API_KEY is None:
+            logger.warning('Environment variable \'GOOGLE_API_KEY\' is not set. Some commands might not work.')
+
         bot = RLBotDiscordBot()
         bot.run()
