@@ -5,6 +5,7 @@ from nextcord.ext import commands
 import requests
 
 from bot import RLBotDiscordBot
+from config import GUILDS
 from settings import SETTINGS_PATH, load_settings, SETTINGS_KEY_COMMANDS, SETTINGS_KEY_STATUS_MESSAGE, \
     SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS
 
@@ -13,7 +14,7 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @nextcord.slash_command(name="command_add", description="Adds a command!")
+    @nextcord.slash_command(name="command_add", description="Adds a command!", guild_ids=GUILDS)
     async def add_command(self, interaction: Interaction, name: str, output: str):
         await interaction.response.defer()
         name = name.lower()
@@ -31,7 +32,7 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.followup.send('Command added')
 
-    @nextcord.slash_command(name="command_del", description="Deletes a command!")
+    @nextcord.slash_command(name="command_del", description="Deletes a command!", guild_ids=GUILDS)
     async def del_command(self, interaction: Interaction, name: str):
         await interaction.response.defer()
         name = name.lower()
@@ -47,7 +48,7 @@ class AdminCommands(commands.Cog):
 
     PRESENCE_OPTIONS = ["reset", "stream", "playing", "listening", "competing", "watching"]
 
-    @nextcord.slash_command(name="presence_set", description="Change the presence!")
+    @nextcord.slash_command(name="presence_set", description="Change the presence!", guild_ids=GUILDS)
     async def presence(self, interaction: Interaction,
                        type: str = nextcord.SlashOption(name="type", choices=PRESENCE_OPTIONS), action: str = "Bots",
                        url: str = None):
@@ -72,12 +73,12 @@ class AdminCommands(commands.Cog):
 
         await interaction.followup.send('Presence updated')
 
-    @nextcord.slash_command(name="settings_get", description="Get the settings for the bot!")
+    @nextcord.slash_command(name="settings_get", description="Get the settings for the bot!", guild_ids=GUILDS)
     async def give_settings(self, interaction: Interaction):
         await interaction.response.defer()
         await interaction.followup.send(file=nextcord.File(SETTINGS_PATH))
 
-    @nextcord.slash_command(name="settings_set", description="Set the settings for the bot!")
+    @nextcord.slash_command(name="settings_set", description="Set the settings for the bot!", guild_ids=GUILDS)
     async def take_settings(self, interaction: Interaction, attachment: nextcord.Attachment):
         await interaction.response.defer()
         url = attachment.url
@@ -98,7 +99,7 @@ class AdminCommands(commands.Cog):
 
         await interaction.followup.send(all_commands)
 
-    @nextcord.slash_command(name="whitelist_domain", description="Whitelist a given domain (blank to list all domains)")
+    @nextcord.slash_command(name="whitelist_domain", description="Whitelist a given domain (blank to list all domains)", guild_ids=GUILDS)
     async def whitelist_domain(self, interaction: Interaction, domain: str = None):
         await interaction.response.defer()
 
