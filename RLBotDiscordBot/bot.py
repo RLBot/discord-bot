@@ -8,7 +8,6 @@ from settings import load_settings, save_settings
 
 initial_extensions = (
     'cogs.admin',
-    'cogs.sendclip',
     'cogs.calendar',
     'cogs.faq',
 )
