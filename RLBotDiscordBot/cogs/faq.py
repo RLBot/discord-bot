@@ -3,6 +3,8 @@ from nextcord import Interaction
 from nextcord.ext import commands
 
 from bot import RLBotDiscordBot
+from settings import SETTINGS_KEY_FAQ_CONTENT, SETTINGS_KEY_FAQ_CHANNEL, SETTINGS_KEY_FAQ_ITEM_MSG, \
+    SETTINGS_KEY_FAQ_ITEM_QUESTION, SETTINGS_KEY_FAQ_ITEM_ANSWER
 
 
 class FaqCommands(commands.Cog):
@@ -15,7 +17,7 @@ class FaqCommands(commands.Cog):
         await self.remove_old_faq_messages(interaction)
 
         # Save new faq channel
-        self.bot.settings['Faq_channel'] = channel.id
+        self.bot.settings[SETTINGS_KEY_FAQ_CHANNEL] = channel.id
 
         await interaction.followup.send('FAQ channel was successfully updated')
         await self.refresh(interaction)  # Also saves changes to settings
@@ -24,11 +26,11 @@ class FaqCommands(commands.Cog):
     async def add_faq(self, interaction: Interaction, question: str, answer: str):
         await interaction.response.defer()
 
-        faqs = self.get_faqs()
+        faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
         faqs.append({
-            "Q": question,
-            "A": answer,
-            "msg": None,
+            SETTINGS_KEY_FAQ_ITEM_QUESTION: question,
+            SETTINGS_KEY_FAQ_ITEM_ANSWER: answer,
+            SETTINGS_KEY_FAQ_ITEM_MSG: None,
         })
 
         await self.refresh(interaction)  # Also saves changes to settings
@@ -41,12 +43,12 @@ class FaqCommands(commands.Cog):
         # Convert to 0-indexed
         qid = int(qid) - 1
 
-        faqs = self.get_faqs()
+        faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
         if 0 <= qid < len(faqs):
 
             faq = faqs[qid]
-            faq['Q'] = question
-            faq['A'] = answer
+            faq[SETTINGS_KEY_FAQ_ITEM_QUESTION] = question
+            faq[SETTINGS_KEY_FAQ_ITEM_ANSWER] = answer
 
             await self.refresh(interaction)  # Also saves changes to settings
             await interaction.followup.send(f'Successfully updated FAQ:\n**Q{qid + 1}: {question}**\n{answer}')
@@ -60,12 +62,12 @@ class FaqCommands(commands.Cog):
         # Convert to 0-indexed
         qid = int(qid) - 1
 
-        faqs = self.get_faqs()
+        faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
         if 0 <= qid < len(faqs):
             await self.remove_old_faq_messages(interaction)
 
-            question = faqs[qid]['Q']
-            answer = faqs[qid]['A']
+            question = faqs[qid][SETTINGS_KEY_FAQ_ITEM_QUESTION]
+            answer = faqs[qid][SETTINGS_KEY_FAQ_ITEM_ANSWER]
 
             del faqs[qid]
 
@@ -86,7 +88,7 @@ class FaqCommands(commands.Cog):
             # Lol
             return
 
-        faqs = self.get_faqs()
+        faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
         if 0 <= qid1 < len(faqs):
             if 0 <= qid2 < len(faqs):
                 await self.remove_old_faq_messages(interaction)
@@ -111,34 +113,34 @@ class FaqCommands(commands.Cog):
         await self.remove_old_faq_messages(interaction)
 
         # Validate that faq channel is set and exists
-        faq_channel_id = self.bot.settings.get('Faq_channel')
+        faq_channel_id = self.bot.settings.get(SETTINGS_KEY_FAQ_CHANNEL)
         if faq_channel_id is None:
-            await interaction.followup.send('FAQ channel is not set. Use `/faq_channel` to set it')
+            await interaction.followup.send('FAQ channel is not set. Use `/faq_channel_set` to set it')
             return
         faq_channel = interaction.guild.get_channel(faq_channel_id)
         if faq_channel is None:
-            await interaction.followup.send('FAQ channel does not exist. Use `/faq_channel` to set it')
+            await interaction.followup.send('FAQ channel does not exist. Use `/faq_channel_set` to set it')
             return
 
         # Send FAQ entries
-        faqs = self.get_faqs()
+        faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
         for i, faq in enumerate(faqs):
-            question = faq["Q"]
-            answer = faq["A"]
+            question = faq[SETTINGS_KEY_FAQ_ITEM_QUESTION]
+            answer = faq[SETTINGS_KEY_FAQ_ITEM_ANSWER]
             msg = await faq_channel.send(f"## Q{i + 1}: {question}\n{answer}\n")
-            faq["msg"] = msg.id  # Updates settings
+            faq[SETTINGS_KEY_FAQ_ITEM_MSG] = msg.id  # Updates settings
 
         # Save new message ids
         self.bot.save_and_reload_settings()
 
     async def remove_old_faq_messages(self, interaction: Interaction):
-        faq_channel_id = self.bot.settings.get('Faq_channel')
+        faq_channel_id = self.bot.settings.get(SETTINGS_KEY_FAQ_CHANNEL)
         if faq_channel_id is not None:
             faq_channel = interaction.guild.get_channel(faq_channel_id)
             if faq_channel is not None:
-                faqs = self.bot.settings.setdefault("Faqs", [])
+                faqs = self.bot.settings.setdefault(SETTINGS_KEY_FAQ_CONTENT, [])
                 for faq in faqs:
-                    msg_id = faq["msg"]
+                    msg_id = faq[SETTINGS_KEY_FAQ_ITEM_MSG]
                     if msg_id is not None:
                         try:
                             msg = await faq_channel.fetch_message(msg_id)

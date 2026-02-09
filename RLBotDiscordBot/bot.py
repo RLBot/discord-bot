@@ -4,7 +4,7 @@ import nextcord
 from nextcord.ext import commands
 
 from config import TOKEN
-from settings import load_settings, save_settings
+from settings import load_settings, save_settings, SETTINGS_KEY_STATUS_MESSAGE, SETTINGS_KEY_COMMANDS
 
 initial_extensions = (
     'cogs.admin',
@@ -18,7 +18,7 @@ class RLBotDiscordBot(commands.Bot):
         self.settings = load_settings()
 
         intents = nextcord.Intents.all()
-        activity = nextcord.Game(name=self.settings.setdefault("Status_message", "with bots!"))
+        activity = nextcord.Game(name=self.settings.setdefault(SETTINGS_KEY_STATUS_MESSAGE, "with bots!"))
         super().__init__(command_prefix='!', activity=activity, intents=intents)
 
         self.logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class RLBotDiscordBot(commands.Bot):
             # E.g. assume we have two commands !league and !leagueranks, the message "!leagueranks" should
             # trigger !leagueranks and not !league
             longest_found_cmd = None
-            for command in self.settings.setdefault('commands', {}):
+            for command in self.settings.setdefault(SETTINGS_KEY_COMMANDS, {}):
                 if longest_found_cmd is None or len(command) > len(longest_found_cmd):
                     string_divided = message.content.lower().split()
                     for triggers in string_divided:
@@ -50,7 +50,7 @@ class RLBotDiscordBot(commands.Bot):
                             longest_found_cmd = command
                             break
             if longest_found_cmd is not None:
-                await message.channel.send(self.settings['commands'][longest_found_cmd])
+                await message.channel.send(self.settings[SETTINGS_KEY_COMMANDS][longest_found_cmd])
                 return
 
     async def on_command_error(self, ctx, error: Exception):
