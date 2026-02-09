@@ -9,7 +9,7 @@ class FaqCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
 
-    @nextcord.slash_command(name="faq_channel", description="Update FAQ channel")
+    @nextcord.slash_command(name="faq_channel_set", description="Update FAQ channel")
     async def faq_channel(self, interaction: Interaction, channel: nextcord.TextChannel):
         await interaction.response.defer()
         await self.remove_old_faq_messages(interaction)
@@ -20,7 +20,7 @@ class FaqCommands(commands.Cog):
         await interaction.followup.send('FAQ channel was successfully updated')
         await self.refresh(interaction)  # Also saves changes to settings
 
-    @nextcord.slash_command(name="add_faq", description="Add an FAQ")
+    @nextcord.slash_command(name="faq_add", description="Add an FAQ")
     async def add_faq(self, interaction: Interaction, question: str, answer: str):
         await interaction.response.defer()
 
@@ -34,7 +34,7 @@ class FaqCommands(commands.Cog):
         await self.refresh(interaction)  # Also saves changes to settings
         await interaction.followup.send(f'Successfully added FAQ:\n**Q{len(faqs)}: {question}**\n{answer}')
 
-    @nextcord.slash_command(name="edit_faq", description="Edit a FAQ")
+    @nextcord.slash_command(name="faq_edit", description="Edit a FAQ")
     async def edit_faq(self, interaction: Interaction, qid: int, question: str, answer: str):
         await interaction.response.defer()
 
@@ -54,7 +54,7 @@ class FaqCommands(commands.Cog):
         else:
             await interaction.followup.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="del_faq", description="Delete an FAQ")
+    @nextcord.slash_command(name="faq_del", description="Delete an FAQ")
     async def del_faq(self, interaction: Interaction, qid: int):
         await interaction.response.defer()
         # Convert to 0-indexed
@@ -75,7 +75,7 @@ class FaqCommands(commands.Cog):
         else:
             await interaction.followup.send(f'The question id is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="swap_faq", description="Swap two FAQs")
+    @nextcord.slash_command(name="faq_swap", description="Swap two FAQs")
     async def swap_faqs(self, interaction: Interaction, qid1: int, qid2: int):
         await interaction.response.defer()
         # Convert to 0-indexed
@@ -100,7 +100,7 @@ class FaqCommands(commands.Cog):
         else:
             await interaction.followup.send(f'The question id1 is out of bounds. There are {len(faqs)} FAQs')
 
-    @nextcord.slash_command(name="refresh_faq", description="Refresh FAQs")
+    @nextcord.slash_command(name="faq_refresh", description="Refresh FAQs")
     async def refresh_faq(self, interaction: Interaction):
         await interaction.response.defer()
         await self.refresh(interaction)
