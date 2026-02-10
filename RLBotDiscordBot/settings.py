@@ -6,6 +6,7 @@ SETTINGS_PATH = Path(__file__).parent / 'settings.json'
 
 SETTINGS_KEY_COMMANDS = "commands"
 SETTINGS_KEY_ADMIN_CHANNEL = "admin_channel"
+SETTINGS_KEY_LOG_CHANNEL = "log_channel"
 SETTINGS_KEY_CLIPS_CHANNEL = "clips_channel"
 SETTINGS_KEY_STATUS_MESSAGE = "status_message"
 SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS = "whitelisted_clips_domains"
