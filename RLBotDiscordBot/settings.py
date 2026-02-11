@@ -4,6 +4,17 @@ from pathlib import Path
 
 SETTINGS_PATH = Path(__file__).parent / 'settings.json'
 
+SETTINGS_KEY_COMMANDS = "commands"
+SETTINGS_KEY_ADMIN_CHANNEL = "admin_channel"
+SETTINGS_KEY_CLIPS_CHANNEL = "clips_channel"
+SETTINGS_KEY_STATUS_MESSAGE = "status_message"
+SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS = "whitelisted_clips_domains"
+SETTINGS_KEY_FAQ_CHANNEL = "faq_channel"
+SETTINGS_KEY_FAQ_CONTENT = "faqs"
+SETTINGS_KEY_FAQ_ITEM_MSG = "msg"
+SETTINGS_KEY_FAQ_ITEM_QUESTION = "question"
+SETTINGS_KEY_FAQ_ITEM_ANSWER = "answer"
+
 
 def load_settings():
     if not SETTINGS_PATH.exists():
