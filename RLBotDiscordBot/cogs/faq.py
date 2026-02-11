@@ -20,7 +20,7 @@ class FaqCommands(commands.Cog):
         # Save new faq channel
         self.bot.settings[SETTINGS_KEY_FAQ_CHANNEL] = channel.id
 
-        await interaction.followup.send('FAQ channel was successfully updated')
+        await interaction.followup.send(f'FAQ channel was set to {channel.mention}')
         await self.refresh(interaction)  # Also saves changes to settings
 
     @nextcord.slash_command(name="faq_add", description="Add an FAQ", guild_ids=GUILDS)

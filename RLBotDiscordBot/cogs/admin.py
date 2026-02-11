@@ -37,14 +37,14 @@ class AdminCommands(commands.Cog):
             edited_text = 'Previous output:\n' + previous_out + '\nCommand edited.'
             await interaction.followup.send(edited_text)
         else:
-            await interaction.followup.send('Command added')
+            await interaction.followup.send(f'Command added: {name}\nOutput:\n{output}')
 
     @nextcord.slash_command(name="command_del", description="Deletes a command!", guild_ids=GUILDS)
     async def del_command(self, interaction: Interaction, name: str):
         await interaction.response.defer()
         name = name.lower()
         if name in self.bot.settings.setdefault(SETTINGS_KEY_COMMANDS, {}):
-            deleted_text = 'Previous output:\n' + str(self.bot.settings[SETTINGS_KEY_COMMANDS][name] + '\nCommand deleted')
+            deleted_text = f'Command deleted: {name}\nPrevious output:\n{self.bot.settings[SETTINGS_KEY_COMMANDS][name]}'
 
             del self.bot.settings[SETTINGS_KEY_COMMANDS][name]
             self.bot.save_and_reload_settings()
