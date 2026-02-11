@@ -16,7 +16,7 @@ from settings import SETTINGS_KEY_LOG_CHANNEL, SETTINGS_KEY_ANTI_SCAM_ENABLED
 
 OFFENDING_EMBED_COUNT = 3
 OFFENDING_CHANNEL_COUNT = 3
-OFFENDING_TIME_INTERVAL = datetime.timedelta(seconds=30)
+OFFENDING_TIME_WINDOW = datetime.timedelta(seconds=30)
 REMEMBERED_MESSAGE_COUNT = 15
 
 
@@ -37,7 +37,12 @@ class AntiScamCommands(commands.Cog):
     async def disable(self, interaction: nextcord.Interaction, status: str = nextcord.SlashOption(name="status", choices=["enable", "disable"])):
         await interaction.response.defer()
         self.bot.settings[SETTINGS_KEY_ANTI_SCAM_ENABLED] = status == "enable"
-        await interaction.followup.send(f"Anti-scam {status}d")
+        if status == "enabled":
+            interaction.followup.send(f"Anti-scam enabled: Kicking users who sends messages contain"
+                                      f"{OFFENDING_EMBED_COUNT}+ embeds/attachments in {OFFENDING_CHANNEL_COUNT}"
+                                      f"within {OFFENDING_TIME_WINDOW.seconds} seconds.")
+        else:
+            interaction.followup.send("Anti-scam disabled.")
 
     @commands.Cog.listener()
     async def on_message(self, message: nextcord.Message):
@@ -71,7 +76,7 @@ class AntiScamCommands(commands.Cog):
         for prev_msg in self.recent_offending_messages:
             if prev_msg.user_id != trigger_msg.author.id:
                 continue
-            if prev_msg.created_at + OFFENDING_TIME_INTERVAL < trigger_msg.created_at:
+            if prev_msg.created_at + OFFENDING_TIME_WINDOW < trigger_msg.created_at:
                 continue
             msgs.append(prev_msg)
             channels_spammed.add(prev_msg.channel_id)
@@ -80,7 +85,7 @@ class AntiScamCommands(commands.Cog):
             # :boot:
             log_msg = (f'Kicking {trigger_msg.author.name} (id: {trigger_msg.author.id}) for sending '
                        f'{len(msgs)} messages with {OFFENDING_EMBED_COUNT}+ embeds in {OFFENDING_CHANNEL_COUNT}+ '
-                       f'channels within {OFFENDING_TIME_INTERVAL.seconds} seconds.')
+                       f'channels within {OFFENDING_TIME_WINDOW.seconds} seconds.')
             self.bot.logger.info(log_msg)
 
             for msg in msgs:
@@ -99,6 +104,7 @@ class AntiScamCommands(commands.Cog):
             except:
                 # Maybe a mod kicked/banned them already
                 pass
+
 
 def setup(bot):
     bot.add_cog(AntiScamCommands(bot))
