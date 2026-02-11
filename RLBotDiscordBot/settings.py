@@ -15,6 +15,7 @@ SETTINGS_KEY_FAQ_CONTENT = "faqs"
 SETTINGS_KEY_FAQ_ITEM_MSG = "msg"
 SETTINGS_KEY_FAQ_ITEM_QUESTION = "question"
 SETTINGS_KEY_FAQ_ITEM_ANSWER = "answer"
+SETTINGS_KEY_ANTI_SCAM_ENABLED = "anti_scam_enabled"
 
 
 def load_settings():
