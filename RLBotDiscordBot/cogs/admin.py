@@ -7,12 +7,19 @@ import requests
 from bot import RLBotDiscordBot
 from config import GUILDS
 from settings import SETTINGS_PATH, load_settings, SETTINGS_KEY_COMMANDS, SETTINGS_KEY_STATUS_MESSAGE, \
-    SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS
+    SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS, SETTINGS_KEY_LOG_CHANNEL
 
 
 class AdminCommands(commands.Cog):
     def __init__(self, bot: RLBotDiscordBot):
         self.bot = bot
+
+    @nextcord.slash_command(name="log_channel_set", description="Sets channel for log messages", guild_ids=GUILDS)
+    async def log_channel_set(self, interaction: Interaction, channel: nextcord.TextChannel):
+        await interaction.response.defer()
+        self.bot.settings[SETTINGS_KEY_LOG_CHANNEL] = channel.id
+        self.bot.save_and_reload_settings()
+        await interaction.followup.send(f'Log channel set to {channel.mention}')
 
     @nextcord.slash_command(name="command_add", description="Adds a command!", guild_ids=GUILDS)
     async def add_command(self, interaction: Interaction, name: str, output: str):

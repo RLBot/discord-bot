@@ -10,6 +10,7 @@ initial_extensions = (
     'cogs.admin',
     'cogs.calendar',
     'cogs.faq',
+    'cogs.anti_scam',
 )
 
 
