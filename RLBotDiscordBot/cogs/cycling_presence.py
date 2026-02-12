@@ -63,7 +63,7 @@ class CyclingPresenceCog(commands.Cog):
                 if event.location.lower() == "https://www.twitch.tv/rlbotofficial":
                     # We are streaming
                     activity = nextcord.Streaming(
-                        name=event.name,
+                        name="Streaming " + event.name,
                         url="https://www.twitch.tv/rlbotofficial",
                         platform="Twitch",
                     )
@@ -72,7 +72,6 @@ class CyclingPresenceCog(commands.Cog):
 
                 elif event.location.lower().startswith("https://www.twitch.tv/"):
                     # Someone else is streaming
-                    # Note: The watching activity does not display in a special way unlike streaming
                     activity = nextcord.Activity(
                         name="Watching twitch.tv/" + event.location[len("https://www.twitch.tv/"):],
                         type=nextcord.ActivityType.watching,
