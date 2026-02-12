@@ -6,7 +6,7 @@ import requests
 
 from bot import RLBotDiscordBot
 from config import GUILDS
-from settings import SETTINGS_PATH, load_settings, SETTINGS_KEY_COMMANDS, SETTINGS_KEY_STATUS_MESSAGE, \
+from settings import SETTINGS_PATH, load_settings, SETTINGS_KEY_COMMANDS, \
     SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS, SETTINGS_KEY_LOG_CHANNEL
 
 
@@ -52,33 +52,6 @@ class AdminCommands(commands.Cog):
             await interaction.followup.send(deleted_text)
             return
         await interaction.followup.send(f"No command named {name} found!")
-
-    PRESENCE_OPTIONS = ["reset", "stream", "playing", "listening", "competing", "watching"]
-
-    @nextcord.slash_command(name="presence_set", description="Change the presence!", guild_ids=GUILDS)
-    async def presence(self, interaction: Interaction,
-                       type: str = nextcord.SlashOption(name="type", choices=PRESENCE_OPTIONS), action: str = "Bots",
-                       url: str = None):
-        await interaction.response.defer()
-
-        presence_dict = {'playing': nextcord.ActivityType.playing,
-                         'listening': nextcord.ActivityType.listening,
-                         'competing': nextcord.ActivityType.competing,
-                         'watching': nextcord.ActivityType.watching}
-
-        if type == 'stream':
-            await self.bot.change_presence(activity=nextcord.Streaming(name=action, url=url))
-
-        elif type in presence_dict.keys():
-            presence = presence_dict[type]
-            await self.bot.change_presence(activity=nextcord.Activity(type=presence, name=action))
-
-        elif type == 'reset':
-            await self.bot.change_presence()
-
-        self.bot.settings[SETTINGS_KEY_STATUS_MESSAGE] = action
-
-        await interaction.followup.send('Presence updated')
 
     @nextcord.slash_command(name="settings_get", description="Get the settings for the bot!", guild_ids=GUILDS)
     async def give_settings(self, interaction: Interaction):
