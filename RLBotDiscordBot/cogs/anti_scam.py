@@ -81,7 +81,9 @@ class AntiScamCommands(commands.Cog):
             msgs.append(prev_msg)
             channels_spammed.add(prev_msg.channel_id)
 
-        if len(channels_spammed) >= OFFENDING_CHANNEL_COUNT:
+        is_mod = any(role.name == "Moderator" for role in trigger_msg.author.roles)
+
+        if len(channels_spammed) >= OFFENDING_CHANNEL_COUNT and not is_mod:
             # :boot:
             log_msg = (f'Kicking {trigger_msg.author.name} (id: {trigger_msg.author.id}) for sending '
                        f'{len(msgs)} messages with {OFFENDING_EMBED_COUNT}+ embeds in {OFFENDING_CHANNEL_COUNT}+ '
