@@ -8,7 +8,7 @@ SETTINGS_KEY_COMMANDS = "commands"
 SETTINGS_KEY_ADMIN_CHANNEL = "admin_channel"
 SETTINGS_KEY_LOG_CHANNEL = "log_channel"
 SETTINGS_KEY_CLIPS_CHANNEL = "clips_channel"
-SETTINGS_KEY_STATUS_MESSAGE = "status_message"
+SETTINGS_KEY_STATUE_MESSAGE_LIST = "status_messages"
 SETTINGS_KEY_WHITELISTED_CLIPS_DOMAINS = "whitelisted_clips_domains"
 SETTINGS_KEY_FAQ_CHANNEL = "faq_channel"
 SETTINGS_KEY_FAQ_CONTENT = "faqs"
@@ -16,6 +16,9 @@ SETTINGS_KEY_FAQ_ITEM_MSG = "msg"
 SETTINGS_KEY_FAQ_ITEM_QUESTION = "question"
 SETTINGS_KEY_FAQ_ITEM_ANSWER = "answer"
 SETTINGS_KEY_ANTI_SCAM_ENABLED = "anti_scam_enabled"
+
+
+DEFAULT_STATUS_MESSAGE = "Playing with bots"
 
 
 def load_settings():

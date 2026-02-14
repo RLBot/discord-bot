@@ -4,11 +4,12 @@ import nextcord
 from nextcord.ext import commands
 
 from config import TOKEN
-from settings import load_settings, save_settings, SETTINGS_KEY_STATUS_MESSAGE, SETTINGS_KEY_COMMANDS
+from settings import load_settings, save_settings, SETTINGS_KEY_COMMANDS, DEFAULT_STATUS_MESSAGE
 
 initial_extensions = (
     'cogs.admin',
     'cogs.calendar',
+    'cogs.cycling_presence',
     'cogs.faq',
     'cogs.anti_scam',
 )
@@ -19,7 +20,7 @@ class RLBotDiscordBot(commands.Bot):
         self.settings = load_settings()
 
         intents = nextcord.Intents.all()
-        activity = nextcord.Game(name=self.settings.setdefault(SETTINGS_KEY_STATUS_MESSAGE, "with bots!"))
+        activity = nextcord.Game(name=DEFAULT_STATUS_MESSAGE)
         super().__init__(command_prefix='!', activity=activity, intents=intents)
 
         self.logger = logging.getLogger(__name__)
