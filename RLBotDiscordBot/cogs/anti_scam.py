@@ -71,28 +71,30 @@ class AntiScamCommands(commands.Cog):
 
 
     async def inspect_recent_messages(self, trigger_msg: nextcord.Message):
-        msgs = []
+        scam_messages = []
         channels_spammed = set()
         for prev_msg in self.recent_offending_messages:
             if prev_msg.user_id != trigger_msg.author.id:
                 continue
             if prev_msg.created_at + OFFENDING_TIME_WINDOW < trigger_msg.created_at:
                 continue
-            msgs.append(prev_msg)
+            scam_messages.append(prev_msg)
             channels_spammed.add(prev_msg.channel_id)
 
         is_mod = any(role.name == "Moderator" for role in trigger_msg.author.roles)
 
         if len(channels_spammed) >= OFFENDING_CHANNEL_COUNT and not is_mod:
             # :boot:
-            log_msg = (f'Kicking {trigger_msg.author.name} (id: {trigger_msg.author.id}) for sending '
-                       f'{len(msgs)} messages with {OFFENDING_EMBED_COUNT}+ embeds in {OFFENDING_CHANNEL_COUNT}+ '
+            log_msg = (f'👢 Kicking **{trigger_msg.author.name}** (ID:{trigger_msg.author.id}) for sending '
+                       f'{len(scam_messages)} messages with {OFFENDING_EMBED_COUNT}+ embeds in {OFFENDING_CHANNEL_COUNT}+ '
                        f'channels within {OFFENDING_TIME_WINDOW.seconds} seconds.')
+
             self.bot.logger.info(log_msg)
 
-            for msg in msgs:
+            for scam_msg in scam_messages:
                 try:
-                    await trigger_msg.author.fetch_message(msg.id)
+                    msg = await trigger_msg.guild.get_channel(scam_msg.channel_id).fetch_message(scam_msg.message_id)
+                    await msg.delete()
                 except:
                     # Maybe a mod removed it already
                     pass
