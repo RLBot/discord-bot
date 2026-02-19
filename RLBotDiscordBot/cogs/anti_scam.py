@@ -38,8 +38,8 @@ class AntiScamCommands(commands.Cog):
         await interaction.response.defer()
         self.bot.settings[SETTINGS_KEY_ANTI_SCAM_ENABLED] = status == "enable"
         if status == "enable":
-            await interaction.followup.send(f"Anti-scam enabled: Kicking users who sends messages contain"
-                                      f"{OFFENDING_EMBED_COUNT}+ embeds/attachments in {OFFENDING_CHANNEL_COUNT}"
+            await interaction.followup.send(f"Anti-scam enabled: Kicking users who sends messages containing "
+                                      f"{OFFENDING_EMBED_COUNT}+ embeds/attachments in {OFFENDING_CHANNEL_COUNT} channels "
                                       f"within {OFFENDING_TIME_WINDOW.seconds} seconds.")
         else:
             await interaction.followup.send("Anti-scam disabled.")
