@@ -37,7 +37,7 @@ class AntiScamCommands(commands.Cog):
     async def disable(self, interaction: nextcord.Interaction, status: str = nextcord.SlashOption(name="status", choices=["enable", "disable"])):
         await interaction.response.defer()
         self.bot.settings[SETTINGS_KEY_ANTI_SCAM_ENABLED] = status == "enable"
-        if status == "enabled":
+        if status == "enable":
             await interaction.followup.send(f"Anti-scam enabled: Kicking users who sends messages contain"
                                       f"{OFFENDING_EMBED_COUNT}+ embeds/attachments in {OFFENDING_CHANNEL_COUNT}"
                                       f"within {OFFENDING_TIME_WINDOW.seconds} seconds.")
