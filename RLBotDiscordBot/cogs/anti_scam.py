@@ -91,14 +91,6 @@ class AntiScamCommands(commands.Cog):
 
             self.bot.logger.info(log_msg)
 
-            for scam_msg in scam_messages:
-                try:
-                    msg = await trigger_msg.guild.get_channel(scam_msg.channel_id).fetch_message(scam_msg.message_id)
-                    await msg.delete()
-                except:
-                    # Maybe a mod removed it already
-                    pass
-
             try:
                 await trigger_msg.guild.kick(trigger_msg.author, reason=log_msg)
 
@@ -108,6 +100,14 @@ class AntiScamCommands(commands.Cog):
             except:
                 # Maybe a mod kicked/banned them already
                 pass
+
+            for scam_msg in scam_messages:
+                try:
+                    msg = await trigger_msg.guild.get_channel(scam_msg.channel_id).fetch_message(scam_msg.message_id)
+                    await msg.delete()
+                except:
+                    # Maybe a mod removed it already
+                    pass
 
 
 def setup(bot):
