@@ -92,7 +92,7 @@ class AntiScamCommands(commands.Cog):
             self.bot.logger.info(log_msg)
 
             try:
-                await trigger_msg.guild.kick(trigger_msg.author, reason=log_msg)
+                await trigger_msg.author.kick(reason=log_msg)
 
                 log_channel = self.bot.settings.get(SETTINGS_KEY_LOG_CHANNEL)
                 if log_channel:
