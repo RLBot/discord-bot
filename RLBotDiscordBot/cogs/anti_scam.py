@@ -48,7 +48,7 @@ class AntiScamCommands(commands.Cog):
     async def on_message(self, message: nextcord.Message):
         if message.author.bot:
             return
-        if self.bot.settings.setdefault(SETTINGS_KEY_ANTI_SCAM_ENABLED, False):
+        if not self.bot.settings.setdefault(SETTINGS_KEY_ANTI_SCAM_ENABLED, False):
             return
 
         embed_count = len(message.embeds) + len(message.attachments)
@@ -98,6 +98,7 @@ class AntiScamCommands(commands.Cog):
                 if log_channel:
                     await trigger_msg.guild.get_channel(log_channel).send(log_msg)
             except:
+                self.bot.logger.warning("Failed to kick user, assuming mod kicked them already")
                 # Maybe a mod kicked/banned them already
                 pass
 
