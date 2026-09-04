@@ -14,7 +14,7 @@ class CyclingPresenceCog(commands.Cog):
         self.bot = bot
         self.update_presence.start()
 
-    @nextcord.slash_command(name="presence_list", description="Lists all presence activities")
+    @nextcord.slash_command(name="presence_list", description="Lists all presence activities", guild_ids=GUILDS)
     async def presence_list(self, interaction: nextcord.Interaction):
         await interaction.response.defer()
         statuses = self.bot.settings.setdefault(SETTINGS_KEY_STATUE_MESSAGE_LIST, [])
@@ -24,7 +24,7 @@ class CyclingPresenceCog(commands.Cog):
             msg = f"**All presence activities:**\n" + "\n".join(statuses)
             await interaction.followup.send(msg)
 
-    @nextcord.slash_command(name="presence_add", description="Add a presence")
+    @nextcord.slash_command(name="presence_add", description="Add a presence", guild_ids=GUILDS)
     async def presence_add(self, interaction: nextcord.Interaction, activity: str):
         await interaction.response.defer()
 
@@ -33,7 +33,7 @@ class CyclingPresenceCog(commands.Cog):
 
         await interaction.followup.send("Added presence: " + activity)
 
-    @nextcord.slash_command(name="presence_del", description="Delete a presence")
+    @nextcord.slash_command(name="presence_del", description="Delete a presence", guild_ids=GUILDS)
     async def presence_del(self, interaction: nextcord.Interaction, activity: str):
         await interaction.response.defer()
 
