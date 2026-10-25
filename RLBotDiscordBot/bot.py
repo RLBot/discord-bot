@@ -19,7 +19,8 @@ class RLBotDiscordBot(commands.Bot):
     def __init__(self):
         self.settings = load_settings()
 
-        intents = nextcord.Intents.all()
+        intents = nextcord.Intents.default()
+        intents.message_content = True
         activity = nextcord.Game(name=DEFAULT_STATUS_MESSAGE)
         super().__init__(command_prefix='!', activity=activity, intents=intents)
 
